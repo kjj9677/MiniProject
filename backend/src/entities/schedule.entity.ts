@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Plan } from './plan.entity';
+import { ScheduleType } from './scheduleType.entity';
 
 @Entity()
 export class Schedule {
@@ -17,11 +25,15 @@ export class Schedule {
   @Column()
   description: string; // Nullable
 
-  @Column()
-  planId: number; // FK
+  @ManyToOne(() => Plan, (plan) => plan.schedules, { eager: true })
+  @JoinColumn()
+  plan: Plan;
 
-  @Column()
-  scheduleTypeId: number; // FK
+  @ManyToOne(() => ScheduleType, {
+    eager: true,
+  })
+  @JoinColumn()
+  scheduleType: ScheduleType;
 
   @Column()
   createdBy: number; // FK

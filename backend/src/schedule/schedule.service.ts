@@ -36,9 +36,9 @@ export class ScheduleService {
           createdBy: schedule.createdBy,
           description: schedule.description,
           duration: schedule.duration,
-          planId: schedule.planId,
+          plan: schedule.plan,
           title: schedule.title,
-          scheduleTypeId: schedule.scheduleTypeId,
+          scheduleType: schedule.scheduleType,
           startTime: schedule.startTime,
         })
         .where('id = :id', { id })

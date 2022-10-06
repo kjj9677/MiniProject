@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Schedule } from './schedule.entity';
 
 @Entity()
 export class Plan {
@@ -16,4 +17,7 @@ export class Plan {
 
   @Column()
   createdBy: number; // FK
+
+  @OneToMany(() => Schedule, (schedule) => schedule.plan, { eager: false })
+  schedules: Schedule[];
 }
