@@ -15,6 +15,10 @@ export class ScheduleService {
     return this.scheduleRepository.find();
   }
 
+  getSchedulesByPlanId(planId: number): Promise<Schedule[]> {
+    return this.scheduleRepository.find({ where: { plan: { id: planId } } });
+  }
+
   getSchedule(id: number): Promise<Schedule> {
     return this.scheduleRepository.findOne(id);
   }

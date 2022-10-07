@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
+import { CreatePlanDto } from './plan.dto';
 import { PlanService } from './plan.service';
 
 @Controller('plans')
@@ -20,13 +21,13 @@ export class PlanController {
   }
 
   @Get(':id')
-  getPlan(@Param('id') id: number): Promise<Plan> {
+  getPlan(@Param('id') id: number) {
     return this.planService.getPlan(id);
   }
 
   @Post()
-  createPlan(@Body() plan: Plan) {
-    return this.planService.createPlan(plan);
+  createPlan(@Body() createPlanDto: CreatePlanDto) {
+    return this.planService.createPlan(createPlanDto);
   }
 
   @Delete(':id')

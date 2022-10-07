@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Schedule } from 'src/entities/schedule.entity';
 import { CreateScheduleDto } from './schedule.dto';
@@ -16,8 +17,13 @@ export class ScheduleController {
   constructor(private scheduleService: ScheduleService) {}
 
   @Get()
-  getSchedules(): Promise<Schedule[]> {
-    return this.scheduleService.getSchedules();
+  getSchedules(@Query() query: { planId: number }): Promise<Schedule[]> {
+    const { planId } = query;
+
+    if (!planId) {
+      return this.scheduleService.getSchedules();
+    }
+    return this.scheduleService.getSchedulesByPlanId(planId);
   }
 
   @Get(':id')

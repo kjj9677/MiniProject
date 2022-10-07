@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plan } from 'src/entities/plan.entity';
-import { getConnection, Repository } from 'typeorm';
+import { Schedule } from 'src/entities/schedule.entity';
+import { getConnection, getRepository, Repository } from 'typeorm';
+import { CreatePlanDto } from './plan.dto';
 
 @Injectable()
 export class PlanService {
@@ -14,12 +16,15 @@ export class PlanService {
     return this.planRepository.find();
   }
 
-  getPlan(id: number): Promise<Plan> {
-    return this.planRepository.findOne(id);
+  async getPlan(id: number) {
+    const schedules = await getRepository(Schedule).find({
+      where: { plan: { id: id } },
+    });
+    return { ...(await this.planRepository.findOne(id)), schedules };
   }
 
-  async createPlan(plan: Plan): Promise<void> {
-    await this.planRepository.save(plan);
+  async createPlan(createPlanDto: CreatePlanDto): Promise<void> {
+    await this.planRepository.save(createPlanDto);
   }
 
   async deletePlan(id: number): Promise<void> {
