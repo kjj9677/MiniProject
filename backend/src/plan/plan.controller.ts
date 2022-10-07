@@ -8,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
-import { CreatePlanDto } from './plan.dto';
+import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 import { PlanService } from './plan.service';
 
 @Controller('plans')
@@ -36,7 +36,7 @@ export class PlanController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() plan: Plan) {
-    return this.planService.updatePlan(id, plan);
+  update(@Param('id') id: number, @Body() updatePlanDto: UpdatePlanDto) {
+    return this.planService.updatePlan(id, updatePlanDto);
   }
 }

@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { Schedule } from 'src/entities/schedule.entity';
-import { CreateScheduleDto } from './schedule.dto';
+import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
 import { ScheduleService } from './schedule.service';
 
 @Controller('schedules')
@@ -42,7 +42,10 @@ export class ScheduleController {
   }
 
   @Put(':id')
-  updateSchedule(@Param('id') id: number, @Body() schedule: Schedule) {
-    return this.scheduleService.updateSchedule(id, schedule);
+  updateSchedule(
+    @Param('id') id: number,
+    @Body() updateScheduleDto: UpdateScheduleDto,
+  ) {
+    return this.scheduleService.updateSchedule(id, updateScheduleDto);
   }
 }

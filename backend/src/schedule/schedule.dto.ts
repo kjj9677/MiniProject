@@ -1,3 +1,4 @@
+import { OmitType } from '@nestjs/mapped-types';
 import {
   IsInt,
   IsOptional,
@@ -45,3 +46,8 @@ export class CreateScheduleDto {
   @Max(Number.MAX_SAFE_INTEGER)
   createdBy: number; // FK
 }
+
+export class UpdateScheduleDto extends OmitType(CreateScheduleDto, [
+  'createdBy',
+  'planId',
+] as const) {}

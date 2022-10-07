@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from 'src/entities/schedule.entity';
 import { getConnection, Repository } from 'typeorm';
-import { CreateScheduleDto } from './schedule.dto';
+import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
 
 @Injectable()
 export class ScheduleService {
@@ -50,20 +50,21 @@ export class ScheduleService {
     await this.scheduleRepository.delete(id);
   }
 
-  async updateSchedule(id: number, schedule: Schedule): Promise<void> {
+  async updateSchedule(
+    id: number,
+    updateScheduleDto: UpdateScheduleDto,
+  ): Promise<void> {
     const prevSchedule = await this.getSchedule(id);
     if (prevSchedule) {
       await getConnection()
         .createQueryBuilder()
         .update(Schedule)
         .set({
-          createdBy: schedule.createdBy,
-          description: schedule.description,
-          duration: schedule.duration,
-          plan: schedule.plan,
-          title: schedule.title,
-          scheduleType: schedule.scheduleType,
-          startTime: schedule.startTime,
+          description: updateScheduleDto.description,
+          duration: updateScheduleDto.duration,
+          title: updateScheduleDto.title,
+          scheduleType: { id: updateScheduleDto.scheduleTypeId },
+          startTime: updateScheduleDto.startTime,
         })
         .where('id = :id', { id })
         .execute();
