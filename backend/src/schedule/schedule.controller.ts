@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { Schedule } from 'src/entities/schedule.entity';
+import { CreateScheduleDto } from './schedule.dto';
 import { ScheduleService } from './schedule.service';
 
 @Controller('schedules')
@@ -25,7 +26,7 @@ export class ScheduleController {
   }
 
   @Post()
-  createSchedule(@Body() schedule: Schedule) {
+  createSchedule(@Body() schedule: CreateScheduleDto) {
     return this.scheduleService.createSchedule(schedule);
   }
 

@@ -22,8 +22,8 @@ export class Schedule {
   @Column()
   title: string;
 
-  @Column()
-  description: string; // Nullable
+  @Column({ nullable: true })
+  description: string;
 
   @ManyToOne(() => Plan, (plan) => plan.schedules, { eager: true })
   @JoinColumn()
