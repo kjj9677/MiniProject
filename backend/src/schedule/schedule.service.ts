@@ -1,30 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from 'src/entities/schedule.entity';
-import { getConnection, Repository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
 
 @Injectable()
 export class ScheduleService {
-  constructor(
-    @InjectRepository(Schedule)
-    private scheduleRepository: Repository<Schedule>,
-  ) {}
-
   getSchedules(): Promise<Schedule[]> {
-    return this.scheduleRepository.find();
+    return getRepository(Schedule).find();
   }
 
   getSchedulesByPlanId(planId: number): Promise<Schedule[]> {
-    return this.scheduleRepository.find({ where: { plan: { id: planId } } });
+    return getRepository(Schedule).find({
+      relations: ['createdBy', 'scheduleType'],
+      where: { plan: { id: planId } },
+    });
   }
 
   async getSchedule(id: number): Promise<Schedule> {
-    const foundSchedule = await this.scheduleRepository.findOne(id);
+    const foundSchedule = await getRepository(Schedule).findOne(id, {
+      relations: ['createdBy', 'plan', 'scheduleType'],
+    });
     if (!foundSchedule) {
       throw new NotFoundException();
     }
-    return this.scheduleRepository.findOne(id);
+
+    return foundSchedule;
   }
 
   async createSchedule(createScheduleDto: CreateScheduleDto): Promise<void> {
@@ -38,7 +38,7 @@ export class ScheduleService {
       title,
     } = createScheduleDto;
 
-    const newSchedule = {
+    const newSchedule = getRepository(Schedule).create({
       createdBy: { id: userId },
       description,
       duration,
@@ -46,37 +46,36 @@ export class ScheduleService {
       scheduleType: { id: scheduleTypeId },
       startTime,
       title,
-    };
-    await this.scheduleRepository.save(newSchedule);
+    });
+
+    await getRepository(Schedule).insert(newSchedule);
   }
 
   async deleteSchedule(id: number): Promise<void> {
-    const foundSchedule = await this.scheduleRepository.findOne(id);
+    const foundSchedule = await getRepository(Schedule).findOne(id);
     if (!foundSchedule) {
       throw new NotFoundException();
     }
-    await this.scheduleRepository.delete(id);
+    await getRepository(Schedule).delete(id);
   }
 
   async updateSchedule(
     id: number,
     updateScheduleDto: UpdateScheduleDto,
   ): Promise<void> {
-    const foundSchedule = await this.scheduleRepository.findOne(id);
+    const foundSchedule = await getRepository(Schedule).findOne(id);
     if (!foundSchedule) {
       throw new NotFoundException();
     }
-    await getConnection()
-      .createQueryBuilder()
-      .update(Schedule)
-      .set({
+    await getRepository(Schedule).update(
+      { id },
+      {
         description: updateScheduleDto.description,
         duration: updateScheduleDto.duration,
         title: updateScheduleDto.title,
         scheduleType: { id: updateScheduleDto.scheduleTypeId },
         startTime: updateScheduleDto.startTime,
-      })
-      .where('id = :id', { id })
-      .execute();
+      },
+    );
   }
 }

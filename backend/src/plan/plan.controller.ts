@@ -27,7 +27,9 @@ export class PlanController {
 
   @Post()
   createPlan(@Body() createPlanDto: CreatePlanDto) {
-    return this.planService.createPlan(createPlanDto);
+    return this.planService
+      .createPlan(createPlanDto)
+      .then(() => 'Create Success');
   }
 
   @Delete(':id')

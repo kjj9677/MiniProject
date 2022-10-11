@@ -18,6 +18,6 @@ export class UserController {
 
   @Post()
   createUser(@Body() user: User) {
-    return this.userService.createUser(user);
+    return this.userService.createUser(user).then(() => 'Creates Success');
   }
 }

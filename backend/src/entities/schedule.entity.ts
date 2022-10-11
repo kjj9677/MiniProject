@@ -15,7 +15,7 @@ export class Schedule {
   id: number;
 
   @Column()
-  startTime: number; // To be modified
+  startTime: number;
 
   @Column()
   duration: number;
@@ -26,7 +26,7 @@ export class Schedule {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => Plan, { eager: true })
+  @ManyToOne(() => Plan, (plan) => plan.schedules, { eager: false })
   @JoinColumn()
   plan: Plan;
 
@@ -36,7 +36,7 @@ export class Schedule {
   @JoinColumn()
   scheduleType: ScheduleType;
 
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne(() => User, { eager: false })
   @JoinColumn()
   createdBy: User;
 }
