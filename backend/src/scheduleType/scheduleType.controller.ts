@@ -8,7 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { ScheduleType } from 'src/entities/scheduleType.entity';
-import { ScheduleTypeService } from './schedule-type.service';
+import { ScheduleTypeService } from './scheduleType.service';
 
 @Controller('types')
 export class ScheduleTypeController {

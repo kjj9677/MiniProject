@@ -1,37 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ScheduleType } from 'src/entities/scheduleType.entity';
-import { getConnection, Repository } from 'typeorm';
+import { getRepository } from 'typeorm';
 
 @Injectable()
 export class ScheduleTypeService {
-  constructor(
-    @InjectRepository(ScheduleType)
-    private scheduleTypeRepository: Repository<ScheduleType>,
-  ) {}
-
   getScheduleTypes(): Promise<ScheduleType[]> {
-    return this.scheduleTypeRepository.find();
+    return getRepository(ScheduleType).find();
   }
 
   async getScheduleType(id: number): Promise<ScheduleType> {
-    const foundScheduleType = await this.scheduleTypeRepository.findOne(id);
+    const foundScheduleType = await getRepository(ScheduleType).findOne(id);
     if (!foundScheduleType) {
       throw new NotFoundException();
     }
-    return this.scheduleTypeRepository.findOne(id);
+    return foundScheduleType;
   }
 
   async createScheduleType(scheduleType: ScheduleType): Promise<void> {
-    await this.scheduleTypeRepository.save(scheduleType);
+    await getRepository(ScheduleType).insert(scheduleType);
   }
 
   async deleteScheduleType(id: number): Promise<void> {
-    const foundScheduleType = await this.scheduleTypeRepository.findOne(id);
+    const foundScheduleType = await getRepository(ScheduleType).findOne(id);
     if (!foundScheduleType) {
       throw new NotFoundException();
     }
-    await this.scheduleTypeRepository.delete(id);
+    await getRepository(ScheduleType).delete(id);
   }
 
   async updateScheduleType(
@@ -40,7 +34,7 @@ export class ScheduleTypeService {
   ): Promise<void> {
     const prevScheduleType = await this.getScheduleType(id);
     if (prevScheduleType) {
-      await getConnection()
+      await getRepository(ScheduleType)
         .createQueryBuilder()
         .update(ScheduleType)
         .set({
@@ -49,5 +43,7 @@ export class ScheduleTypeService {
         .where('id = :id', { id })
         .execute();
     }
+
+    throw new NotFoundException();
   }
 }
