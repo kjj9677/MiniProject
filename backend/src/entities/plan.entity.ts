@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
 export class Plan {
@@ -14,6 +21,7 @@ export class Plan {
   @Column()
   title: string;
 
-  @Column()
-  createdBy: number; // FK
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn()
+  createdBy: User;
 }

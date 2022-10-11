@@ -24,7 +24,16 @@ export class PlanService {
   }
 
   async createPlan(createPlanDto: CreatePlanDto): Promise<void> {
-    await this.planRepository.save(createPlanDto);
+    const { destination, period, title, userId } = createPlanDto;
+
+    const newSchedule = {
+      createdBy: { id: userId },
+      destination,
+      period,
+      title,
+      userId,
+    };
+    await this.planRepository.save(newSchedule);
   }
 
   async deletePlan(id: number): Promise<void> {

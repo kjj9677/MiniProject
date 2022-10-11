@@ -27,9 +27,9 @@ export class CreatePlanDto {
   @IsInt()
   @Min(1)
   @Max(Number.MAX_SAFE_INTEGER)
-  createdBy: number; // FK
+  userId: number;
 }
 
 export class UpdatePlanDto extends OmitType(CreatePlanDto, [
-  'createdBy',
+  'userId',
 ] as const) {}

@@ -7,6 +7,7 @@ import { ScheduleTypeModule } from './schedule-type/schedule-type.module';
 import { ShareModule } from './share/share.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './configs/typeorm.config';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { typeORMConfig } from './configs/typeorm.config';
     ScheduleTypeModule,
     ShareModule,
     TypeOrmModule.forRoot(typeORMConfig),
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

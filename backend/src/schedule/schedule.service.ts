@@ -25,7 +25,7 @@ export class ScheduleService {
 
   async createSchedule(createScheduleDto: CreateScheduleDto): Promise<void> {
     const {
-      createdBy,
+      userId,
       description,
       duration,
       planId,
@@ -35,7 +35,7 @@ export class ScheduleService {
     } = createScheduleDto;
 
     const newSchedule = {
-      createdBy,
+      createdBy: { id: userId },
       description,
       duration,
       plan: { id: planId },

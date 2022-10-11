@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { Plan } from './plan.entity';
 import { ScheduleType } from './scheduleType.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Schedule {
@@ -35,6 +36,7 @@ export class Schedule {
   @JoinColumn()
   scheduleType: ScheduleType;
 
-  @Column()
-  createdBy: number; // FK
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn()
+  createdBy: User;
 }
