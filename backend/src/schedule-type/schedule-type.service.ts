@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ScheduleType } from 'src/entities/scheduleType.entity';
 import { getConnection, Repository } from 'typeorm';
@@ -14,7 +14,11 @@ export class ScheduleTypeService {
     return this.scheduleTypeRepository.find();
   }
 
-  getScheduleType(id: number): Promise<ScheduleType> {
+  async getScheduleType(id: number): Promise<ScheduleType> {
+    const foundScheduleType = await this.scheduleTypeRepository.findOne(id);
+    if (!foundScheduleType) {
+      throw new NotFoundException();
+    }
     return this.scheduleTypeRepository.findOne(id);
   }
 
@@ -23,6 +27,10 @@ export class ScheduleTypeService {
   }
 
   async deleteScheduleType(id: number): Promise<void> {
+    const foundScheduleType = await this.scheduleTypeRepository.findOne(id);
+    if (!foundScheduleType) {
+      throw new NotFoundException();
+    }
     await this.scheduleTypeRepository.delete(id);
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Plan } from 'src/entities/plan.entity';
 import { Schedule } from 'src/entities/schedule.entity';
@@ -17,10 +17,15 @@ export class PlanService {
   }
 
   async getPlan(id: number) {
+    const foundPlan = await this.planRepository.findOne(id);
+    if (!foundPlan) {
+      throw new NotFoundException();
+    }
+
     const schedules = await getRepository(Schedule).find({
       where: { plan: { id: id } },
     });
-    return { ...(await this.planRepository.findOne(id)), schedules };
+    return { ...foundPlan, schedules };
   }
 
   async createPlan(createPlanDto: CreatePlanDto): Promise<void> {
@@ -37,22 +42,29 @@ export class PlanService {
   }
 
   async deletePlan(id: number): Promise<void> {
+    const foundPlan = await this.planRepository.findOne(id);
+    if (!foundPlan) {
+      throw new NotFoundException();
+    }
+
     await this.planRepository.delete(id);
   }
 
   async updatePlan(id: number, updatePlanDto: UpdatePlanDto): Promise<void> {
-    const prevPlan = await this.getPlan(id);
-    if (prevPlan) {
-      await getConnection()
-        .createQueryBuilder()
-        .update(Plan)
-        .set({
-          destination: updatePlanDto.destination,
-          period: updatePlanDto.period,
-          title: updatePlanDto.title,
-        })
-        .where('id = :id', { id })
-        .execute();
+    const foundPlan = await this.planRepository.findOne(id);
+    if (!foundPlan) {
+      throw new NotFoundException();
     }
+
+    await getConnection()
+      .createQueryBuilder()
+      .update(Plan)
+      .set({
+        destination: updatePlanDto.destination,
+        period: updatePlanDto.period,
+        title: updatePlanDto.title,
+      })
+      .where('id = :id', { id })
+      .execute();
   }
 }

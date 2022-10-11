@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from 'src/entities/schedule.entity';
 import { getConnection, Repository } from 'typeorm';
@@ -19,7 +19,11 @@ export class ScheduleService {
     return this.scheduleRepository.find({ where: { plan: { id: planId } } });
   }
 
-  getSchedule(id: number): Promise<Schedule> {
+  async getSchedule(id: number): Promise<Schedule> {
+    const foundSchedule = await this.scheduleRepository.findOne(id);
+    if (!foundSchedule) {
+      throw new NotFoundException();
+    }
     return this.scheduleRepository.findOne(id);
   }
 
@@ -47,6 +51,10 @@ export class ScheduleService {
   }
 
   async deleteSchedule(id: number): Promise<void> {
+    const foundSchedule = await this.scheduleRepository.findOne(id);
+    if (!foundSchedule) {
+      throw new NotFoundException();
+    }
     await this.scheduleRepository.delete(id);
   }
 
@@ -54,20 +62,21 @@ export class ScheduleService {
     id: number,
     updateScheduleDto: UpdateScheduleDto,
   ): Promise<void> {
-    const prevSchedule = await this.getSchedule(id);
-    if (prevSchedule) {
-      await getConnection()
-        .createQueryBuilder()
-        .update(Schedule)
-        .set({
-          description: updateScheduleDto.description,
-          duration: updateScheduleDto.duration,
-          title: updateScheduleDto.title,
-          scheduleType: { id: updateScheduleDto.scheduleTypeId },
-          startTime: updateScheduleDto.startTime,
-        })
-        .where('id = :id', { id })
-        .execute();
+    const foundSchedule = await this.scheduleRepository.findOne(id);
+    if (!foundSchedule) {
+      throw new NotFoundException();
     }
+    await getConnection()
+      .createQueryBuilder()
+      .update(Schedule)
+      .set({
+        description: updateScheduleDto.description,
+        duration: updateScheduleDto.duration,
+        title: updateScheduleDto.title,
+        scheduleType: { id: updateScheduleDto.scheduleTypeId },
+        startTime: updateScheduleDto.startTime,
+      })
+      .where('id = :id', { id })
+      .execute();
   }
 }
