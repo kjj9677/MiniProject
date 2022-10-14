@@ -9,6 +9,7 @@ import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
 import { isEmpty } from 'lodash';
 import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
+import { Plan } from 'src/entities/plan.entity';
 
 @Injectable()
 export class ScheduleService {
@@ -16,19 +17,40 @@ export class ScheduleService {
     return getRepository(Schedule).find();
   }
 
-  getSchedulesByPlanId(planId: number): Promise<Schedule[]> {
+  async getSchedulesByPlanId(user: User, planId: number): Promise<Schedule[]> {
+    const foundPlan = await getRepository(Plan).findOne(planId, {
+      relations: ['createdBy'],
+    });
+
+    if (!foundPlan) {
+      throw new NotFoundException();
+    } else if (
+      foundPlan.createdBy.id !== user.id &&
+      !user.shares.some(({ plan: { id } }) => id === planId)
+    ) {
+      throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
+    }
+
     return getRepository(Schedule).find({
       relations: ['createdBy', 'scheduleType'],
       where: { plan: { id: planId } },
     });
   }
 
-  async getSchedule(id: number): Promise<Schedule> {
+  async getSchedule(user: User, id: number): Promise<Schedule> {
     const foundSchedule = await getRepository(Schedule).findOne(id, {
       relations: ['createdBy', 'plan', 'scheduleType'],
     });
+
+    const planId = foundSchedule.plan.id;
+
     if (!foundSchedule) {
       throw new NotFoundException();
+    } else if (
+      foundSchedule.plan.createdBy.id !== user.id &&
+      !user.shares.some(({ plan: { id } }) => id === planId)
+    ) {
+      throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
     }
 
     return foundSchedule;
@@ -67,7 +89,10 @@ export class ScheduleService {
 
     if (!foundSchedule) {
       throw new NotFoundException();
-    } else if (foundSchedule.createdBy.id !== user.id && isEmpty(foundShare)) {
+    } else if (
+      foundSchedule.plan.createdBy.id !== user.id &&
+      isEmpty(foundShare)
+    ) {
       throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
     }
 
@@ -90,8 +115,11 @@ export class ScheduleService {
 
     if (!foundSchedule) {
       throw new NotFoundException();
-    } else if (foundSchedule.createdBy.id !== user.id && isEmpty(foundShare)) {
-      throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
+    } else if (
+      foundSchedule.plan.createdBy.id !== user.id &&
+      isEmpty(foundShare)
+    ) {
+      throw new UnauthorizedException('수정 권한이 없는 유저의 요청입니다.');
     }
 
     await getRepository(Schedule).update(

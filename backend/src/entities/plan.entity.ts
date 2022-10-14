@@ -26,7 +26,7 @@ export class Plan {
   @Column()
   title: string;
 
-  @ManyToOne(() => User, { eager: false })
+  @ManyToOne(() => User, { eager: true })
   @JoinColumn()
   createdBy: User;
 

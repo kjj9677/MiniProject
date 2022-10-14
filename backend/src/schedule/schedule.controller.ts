@@ -21,18 +21,24 @@ export class ScheduleController {
   constructor(private scheduleService: ScheduleService) {}
 
   @Get()
-  getSchedules(@Query() query: { planId: number }): Promise<Schedule[]> {
-    const { planId } = query;
-
+  @UseGuards(AuthGuard('jwt'))
+  getSchedules(
+    @Req() { user }: { user: User },
+    @Query() { planId }: { planId: number },
+  ): Promise<Schedule[]> {
     if (!planId) {
       return this.scheduleService.getSchedules();
     }
-    return this.scheduleService.getSchedulesByPlanId(planId);
+    return this.scheduleService.getSchedulesByPlanId(user, planId);
   }
 
   @Get(':id')
-  getSchedule(@Param('id') id: number): Promise<Schedule> {
-    return this.scheduleService.getSchedule(id);
+  @UseGuards(AuthGuard('jwt'))
+  getSchedule(
+    @Req() { user }: { user: User },
+    @Param('id') id: number,
+  ): Promise<Schedule> {
+    return this.scheduleService.getSchedule(user, id);
   }
 
   @Post()
