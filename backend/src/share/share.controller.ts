@@ -33,7 +33,7 @@ export class ShareController {
   createShare(
     @Req() { user }: { user: User },
     @Body() createShareDto: CreateShareDto,
-  ) {
+  ): Promise<Share> {
     return this.shareService.createShare(user, createShareDto);
   }
 
