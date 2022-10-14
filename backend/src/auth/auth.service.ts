@@ -22,7 +22,7 @@ const CONTENT_TYPE = 'application/x-www-form-urlencoded;charset=utf-8';
 @Injectable()
 export class AuthService {
   constructor(private jwtService: JwtService) {}
-  async kakaoLogin(code: string): Promise<void> {
+  async kakaoLogin(code: string): Promise<{ accessToken: string }> {
     const body = {
       grant_type: GRANT_TYPE,
       client_id: RESTAPI_KEY,
@@ -76,6 +76,8 @@ export class AuthService {
       const newUser = getRepository(User).create({ kakaoAccessToken, kakaoId });
       await getRepository(User).insert(newUser);
     }
+    const accessToken = await this.jwtService.sign({ kakaoId });
+    return { accessToken };
   }
 
   private async checkDoesUserExistsByKakaoId(
