@@ -4,8 +4,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
+import { Share } from 'src/entities/share.entity';
 import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
+import { isEmpty } from 'lodash';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 
 @Injectable()
@@ -58,10 +60,18 @@ export class PlanService {
     id: number,
     updatePlanDto: UpdatePlanDto,
   ): Promise<void> {
-    const foundPlan = await getRepository(Plan).findOne(id);
+    const foundShare = await getRepository(Share).find({
+      member: { id: user.id },
+      plan: { id },
+    });
+
+    const foundPlan = await getRepository(Plan).findOne(id, {
+      relations: ['createdBy'],
+    });
+
     if (!foundPlan) {
       throw new NotFoundException('존재하지 않는 플랜입니다.');
-    } else if (foundPlan.createdBy.id !== user.id) {
+    } else if (foundPlan.createdBy.id !== user.id && isEmpty(foundShare)) {
       throw new UnauthorizedException('수정 권한이 없는 유저의 요청입니다.');
     }
 

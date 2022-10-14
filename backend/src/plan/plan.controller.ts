@@ -51,6 +51,8 @@ export class PlanController {
     @Param('id') id: number,
     @Body() updatePlanDto: UpdatePlanDto,
   ) {
-    return this.planService.updatePlan(user, id, updatePlanDto);
+    return this.planService
+      .updatePlan(user, id, updatePlanDto)
+      .then(() => 'Update Success');
   }
 }
