@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Schedule } from 'src/entities/schedule.entity';
+import { Share } from 'src/entities/share.entity';
+import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
+import { isEmpty } from 'lodash';
 import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
 
 @Injectable()
@@ -27,19 +34,15 @@ export class ScheduleService {
     return foundSchedule;
   }
 
-  async createSchedule(createScheduleDto: CreateScheduleDto): Promise<void> {
-    const {
-      userId,
-      description,
-      duration,
-      planId,
-      scheduleTypeId,
-      startTime,
-      title,
-    } = createScheduleDto;
+  async createSchedule(
+    user: User,
+    createScheduleDto: CreateScheduleDto,
+  ): Promise<Schedule> {
+    const { description, duration, planId, scheduleTypeId, startTime, title } =
+      createScheduleDto;
 
     const newSchedule = getRepository(Schedule).create({
-      createdBy: { id: userId },
+      createdBy: { id: user.id },
       description,
       duration,
       plan: { id: planId },
@@ -49,24 +52,48 @@ export class ScheduleService {
     });
 
     await getRepository(Schedule).insert(newSchedule);
+
+    return newSchedule;
   }
 
-  async deleteSchedule(id: number): Promise<void> {
-    const foundSchedule = await getRepository(Schedule).findOne(id);
+  async deleteSchedule(user: User, id: number): Promise<void> {
+    const foundSchedule = await getRepository(Schedule).findOne(id, {
+      relations: ['createdBy', 'plan'],
+    });
+    const foundShare = await getRepository(Share).find({
+      member: { id: user.id },
+      plan: { id: foundSchedule.plan.id },
+    });
+
     if (!foundSchedule) {
       throw new NotFoundException();
+    } else if (foundSchedule.createdBy.id !== user.id && isEmpty(foundShare)) {
+      throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
     }
+
     await getRepository(Schedule).delete(id);
   }
 
   async updateSchedule(
+    user: User,
     id: number,
     updateScheduleDto: UpdateScheduleDto,
   ): Promise<void> {
-    const foundSchedule = await getRepository(Schedule).findOne(id);
+    const foundSchedule = await getRepository(Schedule).findOne(id, {
+      relations: ['createdBy', 'plan'],
+    });
+
+    const foundShare = await getRepository(Share).find({
+      member: { id: user.id },
+      plan: { id: foundSchedule.plan.id },
+    });
+
     if (!foundSchedule) {
       throw new NotFoundException();
+    } else if (foundSchedule.createdBy.id !== user.id && isEmpty(foundShare)) {
+      throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
     }
+
     await getRepository(Schedule).update(
       { id },
       {

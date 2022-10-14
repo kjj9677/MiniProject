@@ -60,13 +60,13 @@ export class PlanService {
     id: number,
     updatePlanDto: UpdatePlanDto,
   ): Promise<void> {
+    const foundPlan = await getRepository(Plan).findOne(id, {
+      relations: ['createdBy'],
+    });
+
     const foundShare = await getRepository(Share).find({
       member: { id: user.id },
       plan: { id },
-    });
-
-    const foundPlan = await getRepository(Plan).findOne(id, {
-      relations: ['createdBy'],
     });
 
     if (!foundPlan) {

@@ -40,14 +40,8 @@ export class CreateScheduleDto {
   @Min(1)
   @Max(Number.MAX_SAFE_INTEGER)
   scheduleTypeId: number;
-
-  @IsInt()
-  @Min(1)
-  @Max(Number.MAX_SAFE_INTEGER)
-  userId: number;
 }
 
 export class UpdateScheduleDto extends OmitType(CreateScheduleDto, [
-  'userId',
   'planId',
 ] as const) {}
