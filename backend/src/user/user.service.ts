@@ -2,11 +2,12 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { isEmpty } from 'lodash';
 import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
-import { CreateUserDto } from './user.dto';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -28,7 +29,7 @@ export class UserService {
   }
 
   private async checkDoesUserExistsByKakaoId(
-    kakaoId: number,
+    kakaoId: string,
   ): Promise<boolean> {
     const user = await getRepository(User)
       .find({
@@ -41,5 +42,21 @@ export class UserService {
       });
 
     return !isEmpty(user);
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    const foundUser = await getRepository(User).findOne(id);
+    if (!foundUser) {
+      throw new NotFoundException();
+    }
+    await getRepository(User).delete(id);
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<void> {
+    const foundUser = await getRepository(User).findOne(id);
+    if (!foundUser) {
+      throw new NotFoundException();
+    }
+    await getRepository(User).update({ id }, updateUserDto);
   }
 }

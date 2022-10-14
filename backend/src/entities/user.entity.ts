@@ -10,8 +10,11 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true }) // to be modified
-  kakaoId: number;
+  @Column({ nullable: true })
+  kakaoId: string;
+
+  @Column({ nullable: true })
+  kakaoAccessToken: string;
 
   @CreateDateColumn()
   createdAt: Date;

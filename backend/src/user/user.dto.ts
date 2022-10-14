@@ -1,10 +1,11 @@
-import { IsInt, Max, Min } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateUserDto {
-  @IsInt()
-  @Min(1)
-  @Max(Number.MAX_SAFE_INTEGER)
-  kakaoId: number;
+  @IsString()
+  kakaoId: string;
+
+  @IsString()
+  kakaoAccessToken: string;
 }
 
 export class UpdateUserDto extends CreateUserDto {}

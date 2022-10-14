@@ -2,8 +2,16 @@ import { FC, useEffect } from "react";
 import axios from "axios";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
+import useSWR from "swr";
 
 const BASIC_URI = "http://localhost:3000";
+
+async function getToken(code: string | string[]) {
+  const data = await axios
+    .post(`${BASIC_URI}/auth/login/kakao?code=${code}`)
+    .then(({ data }) => data);
+  console.log(data);
+}
 
 const Kakao: FC = () => {
   const router = useRouter();
@@ -11,16 +19,15 @@ const Kakao: FC = () => {
     query: { code },
   } = router;
 
-  // useEffect(() => {
-  //   if (router && !code) {
-  //     router.push("/");
-  //   }
-  // }, [code]);
+  useEffect(() => {
+    if (router.isReady && !code) {
+      router.push("/");
+    }
 
-  async function getToken() {
-    const res = await axios.post(`${BASIC_URI}/login/kakao?code=${code}`);
-    console.log(res.data);
-  }
+    if (code) {
+      getToken(code).then(() => router.push("/login/kakao"));
+    }
+  }, [router, code]);
 
   return (
     <div
@@ -31,7 +38,9 @@ const Kakao: FC = () => {
         width: "100vw",
       }}
     >
-      <KaKaoLoginButton onClick={getToken}>토큰 얻기</KaKaoLoginButton>
+      <KaKaoLoginButton onClick={() => getToken(code)}>
+        토큰 얻기
+      </KaKaoLoginButton>
     </div>
   );
 };
