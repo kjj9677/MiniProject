@@ -1,13 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Plan } from './plan.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Share {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  planId: number; // FK
+  @ManyToOne(() => Plan, { eager: true })
+  plan: Plan;
 
-  @Column()
-  userId: number; // FK
+  @ManyToOne(() => User, { eager: true })
+  member: User;
 }

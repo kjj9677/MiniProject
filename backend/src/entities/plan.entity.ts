@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Schedule } from './schedule.entity';
+import { Share } from './share.entity';
 import { User } from './user.entity';
 
 @Entity()
@@ -32,6 +33,9 @@ export class Plan {
   @OneToMany(() => Schedule, (schedule) => schedule.createdBy, { eager: false })
   @JoinColumn()
   schedules: Schedule[];
+
+  @OneToMany(() => Share, (share) => share.plan, { eager: false })
+  shares: Share[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -2,15 +2,18 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Share } from './share.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   kakaoId: string;
 
   @Column({ nullable: true })
@@ -18,4 +21,7 @@ export class User {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => Share, (share) => share.member, { eager: false })
+  shares: Share[];
 }

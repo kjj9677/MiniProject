@@ -1,6 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Share } from 'src/entities/share.entity';
 import { ShareService } from './share.service';
+import { AuthGuard } from '@nestjs/passport';
+import { CreateShareDto } from './share.dto';
+import { User } from 'src/entities/user.entity';
 
 @Controller('shares')
 export class ShareController {
@@ -17,12 +29,17 @@ export class ShareController {
   }
 
   @Post()
-  createShare(@Body() share: Share) {
-    return this.shareService.createShare(share);
+  @UseGuards(AuthGuard('jwt'))
+  createShare(
+    @Req() { user }: { user: User },
+    @Body() createShareDto: CreateShareDto,
+  ) {
+    return this.shareService.createShare(user, createShareDto);
   }
 
   @Delete(':id')
-  deleteShare(@Param('id') id: number) {
-    return this.shareService.deleteShare(id);
+  @UseGuards(AuthGuard('jwt'))
+  deleteShare(@Req() { user }: { user: User }, @Param('id') id: number) {
+    return this.shareService.deleteShare(user, id);
   }
 }
