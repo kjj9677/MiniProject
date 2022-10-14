@@ -6,10 +6,14 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 import { PlanService } from './plan.service';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/entities/user.entity';
 
 @Controller('plans')
 export class PlanController {
@@ -26,19 +30,27 @@ export class PlanController {
   }
 
   @Post()
-  createPlan(@Body() createPlanDto: CreatePlanDto) {
-    return this.planService
-      .createPlan(createPlanDto)
-      .then(() => 'Create Success');
+  @UseGuards(AuthGuard('jwt'))
+  createPlan(
+    @Req() { user }: { user: User },
+    @Body() createPlanDto: CreatePlanDto,
+  ): Promise<Plan> {
+    return this.planService.createPlan(user, createPlanDto);
   }
 
   @Delete(':id')
-  deletePlan(@Param('id') id: number) {
-    return this.planService.deletePlan(id);
+  @UseGuards(AuthGuard('jwt'))
+  deletePlan(@Req() { user }: { user: User }, @Param('id') id: number) {
+    return this.planService.deletePlan(user, id).then(() => 'Delete Success');
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() updatePlanDto: UpdatePlanDto) {
-    return this.planService.updatePlan(id, updatePlanDto);
+  @UseGuards(AuthGuard('jwt'))
+  update(
+    @Req() { user }: { user: User },
+    @Param('id') id: number,
+    @Body() updatePlanDto: UpdatePlanDto,
+  ) {
+    return this.planService.updatePlan(user, id, updatePlanDto);
   }
 }

@@ -1,4 +1,3 @@
-import { OmitType } from '@nestjs/mapped-types';
 import {
   IsInt,
   IsString,
@@ -23,13 +22,6 @@ export class CreatePlanDto {
   @MinLength(1)
   @MaxLength(30)
   title: string;
-
-  @IsInt()
-  @Min(1)
-  @Max(Number.MAX_SAFE_INTEGER)
-  userId: number;
 }
 
-export class UpdatePlanDto extends OmitType(CreatePlanDto, [
-  'userId',
-] as const) {}
+export class UpdatePlanDto extends CreatePlanDto {}
