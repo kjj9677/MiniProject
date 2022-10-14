@@ -12,16 +12,30 @@ import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 
 @Injectable()
 export class PlanService {
-  getPlans(): Promise<Plan[]> {
-    return getRepository(Plan).find();
+  async getPlans(user: User): Promise<Plan[]> {
+    const createdPlans = await getRepository(Plan).find({
+      where: { createdBy: { id: user.id } },
+    });
+
+    const sharedPlans = user.shares.map(({ plan }: Share) => plan);
+
+    return createdPlans.concat(sharedPlans);
   }
 
-  async getPlan(id: number) {
+  async getPlan(user: User, id: number): Promise<Plan> {
     const foundPlan = await getRepository(Plan).findOne(id, {
       relations: ['createdBy', 'schedules'],
     });
+
+    const foundShare = await getRepository(Share).find({
+      member: { id: user.id },
+      plan: { id },
+    });
+
     if (!foundPlan) {
-      throw new NotFoundException();
+      throw new NotFoundException('존재하지 않는 플랜입니다.');
+    } else if (foundPlan.createdBy.id !== user.id && isEmpty(foundShare)) {
+      throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
     }
 
     return foundPlan;

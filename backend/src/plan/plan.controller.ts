@@ -20,13 +20,18 @@ export class PlanController {
   constructor(private planService: PlanService) {}
 
   @Get()
-  getPlans(): Promise<Plan[]> {
-    return this.planService.getPlans();
+  @UseGuards(AuthGuard('jwt'))
+  getPlans(@Req() { user }: { user: User }): Promise<Plan[]> {
+    return this.planService.getPlans(user);
   }
 
   @Get(':id')
-  getPlan(@Param('id') id: number) {
-    return this.planService.getPlan(id);
+  @UseGuards(AuthGuard('jwt'))
+  getPlan(
+    @Req() { user }: { user: User },
+    @Param('id') id: number,
+  ): Promise<Plan> {
+    return this.planService.getPlan(user, id);
   }
 
   @Post()
