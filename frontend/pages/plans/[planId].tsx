@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
+import Modal from "react-modal";
 
 const BASE_URI = "http://localhost:3000";
 
@@ -12,6 +13,7 @@ const PlanDetail: FC = () => {
   const [accessToken, setAccessToken] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [planInfo, setPlanInfo] = useState<any>();
+  const [isFriendsListOpen, setIsFriendsListOpen] = useState(false);
 
   async function createShare() {}
 
@@ -72,7 +74,11 @@ const PlanDetail: FC = () => {
           );
         })}
       </div>
-      <Button>공유하기</Button>
+      <Button onClick={() => setIsFriendsListOpen(true)}>공유하기</Button>
+      <FriendsList
+        isOpen={isFriendsListOpen}
+        onClose={() => setIsFriendsListOpen(false)}
+      />
     </div>
   );
 };
@@ -190,3 +196,45 @@ function getStartTime(startTime: number) {
     startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
   }`;
 }
+
+interface FriendsListProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const FriendsList: FC<FriendsListProps> = ({ isOpen, onClose }) => {
+  const [shareTarget, setShareTarget] = useState("");
+  const onChange = (e: any) => {
+    {
+      const { value } = e.target;
+      setShareTarget(value);
+    }
+  };
+
+  return (
+    <Modal
+      ariaHideApp={false}
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      style={{
+        content: { all: "unset" },
+        overlay: { backgroundColor: "rgba(0, 0, 0, 0.25)", zIndex: 5 },
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "darkgray",
+          display: "flex",
+          columnGap: 20,
+          position: "absolute",
+          left: "40%",
+          top: "30%",
+        }}
+      >
+        <p>누구와 공유하시겠습니까?</p>
+        <input onChange={onChange} value={shareTarget} />
+        <Button>공유하기</Button>
+      </div>
+    </Modal>
+  );
+};
