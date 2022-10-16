@@ -40,6 +40,6 @@ export class ShareController {
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   deleteShare(@Req() { user }: { user: User }, @Param('id') id: number) {
-    return this.shareService.deleteShare(user, id);
+    return this.shareService.deleteShare(user, id).then(() => 'Delete Success');
   }
 }
