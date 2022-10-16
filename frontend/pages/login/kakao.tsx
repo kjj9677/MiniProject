@@ -10,7 +10,8 @@ async function getToken(code: string | string[]) {
   const data = await axios
     .post(`${BASIC_URI}/auth/login/kakao?code=${code}`)
     .then(({ data }) => data);
-  console.log(data);
+
+  localStorage.setItem("accessToken", data.accessToken);
 }
 
 const Kakao: FC = () => {
