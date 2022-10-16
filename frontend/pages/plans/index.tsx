@@ -38,6 +38,19 @@ const Plans: FC = () => {
         width: "100vw",
       }}
     >
+      <div
+        style={{
+          alignItems: "center",
+          backgroundColor: "darkgray",
+          color: "white",
+          display: "flex",
+          height: 70,
+          justifyContent: "center",
+          width: 250,
+        }}
+      >
+        여행계획표 목록
+      </div>
       {planList &&
         planList.map(({ id, destination, period, title }) => (
           <PlanInfo

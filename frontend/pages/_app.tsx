@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import Head from "next/head";
 
+import "../styles/globals.css";
+
 const KAKAO_KEY = "9d4f0287a16fbc1af34ac4a3fc7f065d";
 declare global {
   interface Window {

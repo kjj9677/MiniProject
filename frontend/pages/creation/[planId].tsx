@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { isEmpty } from "lodash";
 import styled from "@emotion/styled";
 import axios from "axios";
@@ -24,7 +24,31 @@ const CreateSchedule: FC = () => {
     title: undefined,
   });
 
+  const [planInfo, setPlanInfo] = useState<any>();
+  const [accessToken, setAccessToken] = useState<string>();
+  const [isLoading, setIsLoading] = useState(true);
+
   const { duration, scheduleTypeId, title } = inputs;
+
+  useEffect(() => {
+    async function getPlanDetail(accessToken: string, planId: number) {
+      const { data } = await axios.get(
+        `${BASE_URI}/plans/${planId}`,
+        toAuthorizetionHeader(accessToken)
+      );
+      setPlanInfo(data);
+    }
+
+    setAccessToken(localStorage.getItem("accessToken"));
+    if (accessToken && planId) {
+      getPlanDetail(accessToken, planId);
+      setIsLoading(false);
+    }
+  }, [accessToken, planId]);
+
+  if (!planInfo || isLoading) {
+    return null;
+  }
 
   const onChange = (e: any) => {
     const { value, name } = e.target;
@@ -103,7 +127,7 @@ const CreateSchedule: FC = () => {
         .post(
           `${BASE_URI}/schedules`,
           addedSchedule,
-          toAuthorizetionHeader(localStorage.getItem("accessToken"))
+          toAuthorizetionHeader(accessToken)
         )
         .then(() => console.log("success"));
     });
@@ -114,28 +138,82 @@ const CreateSchedule: FC = () => {
       style={{
         alignItems: "center",
         display: "flex",
-        flexDirection: "column",
+        columnGap: 500,
         height: "100vh",
         justifyContent: "center",
-        rowGap: 50,
         width: "100vw",
       }}
     >
-      {CREATE_SCHEDULE_TEXT.map(
-        ({ isNumber, inputTitle, name, placeholder, value }) => (
-          <Input
-            key={name}
-            name={name}
-            onChange={onChange}
-            isNumber={isNumber}
-            inputTitle={inputTitle}
-            placeholder={placeholder}
-            value={value}
-          />
-        )
-      )}
-      <Button onClick={addSchedule}>세부 일정 추가하기</Button>
-      <Button onClick={createSchedule}>저장하기</Button>
+      <div
+        style={{
+          alignItems: "center",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          rowGap: 30,
+        }}
+      >
+        <div
+          style={{
+            alignItems: "center",
+            backgroundColor: "darkgray",
+            color: "white",
+            display: "flex",
+            height: 50,
+            justifyContent: "center",
+            width: 150,
+          }}
+        >
+          {planInfo.title}
+        </div>
+        <div>
+          {planInfo.schedules.map(({ id, title, startTime }) => {
+            return (
+              <ScheduleInfo
+                key={id}
+                id={id}
+                title={title}
+                startTime={startTime}
+              />
+            );
+          })}
+          {addedSchedulesRef.current.map(({ id, title, startTime }) => {
+            return (
+              <ScheduleInfo
+                key={id}
+                id={id}
+                title={title}
+                startTime={startTime}
+              />
+            );
+          })}
+        </div>
+      </div>
+      <div
+        style={{
+          alignItems: "center",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          rowGap: 50,
+        }}
+      >
+        {CREATE_SCHEDULE_TEXT.map(
+          ({ isNumber, inputTitle, name, placeholder, value }) => (
+            <Input
+              key={name}
+              name={name}
+              onChange={onChange}
+              isNumber={isNumber}
+              inputTitle={inputTitle}
+              placeholder={placeholder}
+              value={value}
+            />
+          )
+        )}
+        <Button onClick={addSchedule}>세부 일정 추가하기</Button>
+        <Button onClick={createSchedule}>저장하기</Button>
+      </div>
     </div>
   );
 };
@@ -190,3 +268,104 @@ const Button = styled.button(() => ({
   height: 70,
   width: 250,
 }));
+
+interface ScheduleInfoProps {
+  id: number;
+  startTime: number;
+  title: string;
+}
+
+const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
+  return (
+    <div
+      style={{
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          alignItems: "center",
+          backgroundColor: "#ebebeb",
+          color: "black",
+          display: "flex",
+          flexDirection: "column",
+          height: 30,
+          justifyContent: "center",
+          position: "relative",
+          width: 100,
+        }}
+      >
+        <p>{getStartTime(startTime)}</p>
+      </div>
+      <div
+        style={{
+          alignItems: "center",
+          backgroundColor: "darkgray",
+          height: 55,
+          width: 3,
+        }}
+      />
+      <div
+        style={{
+          alignItems: "center",
+          bottom: 10,
+          columnGap: 15,
+          left: 60,
+          display: "flex",
+          justifyContent: "center",
+          position: "absolute",
+        }}
+      >
+        <div
+          style={{
+            alignItems: "center",
+            backgroundColor: "darkgray",
+            color: "white",
+            display: "flex",
+            height: 30,
+            justifyContent: "center",
+            width: 200,
+          }}
+        >
+          {title}
+        </div>
+        <div
+          style={{
+            alignItems: "center",
+            backgroundColor: "#ebebeb",
+            color: "black",
+            display: "flex",
+            height: 30,
+            justifyContent: "center",
+            width: 100,
+          }}
+        >
+          수정
+        </div>
+        <div
+          style={{
+            alignItems: "center",
+            backgroundColor: "#ebebeb",
+            color: "black",
+            display: "flex",
+            height: 30,
+            justifyContent: "center",
+            width: 100,
+          }}
+        >
+          삭제
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function getStartTime(startTime: number) {
+  return `${Math.floor(startTime / 60)}:${
+    startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
+  }`;
+}
