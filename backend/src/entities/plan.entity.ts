@@ -30,7 +30,7 @@ export class Plan {
   @JoinColumn()
   createdBy: User;
 
-  @OneToMany(() => Schedule, (schedule) => schedule.createdBy, { eager: false })
+  @OneToMany(() => Schedule, (schedule) => schedule.plan, { eager: false })
   @JoinColumn()
   schedules: Schedule[];
 

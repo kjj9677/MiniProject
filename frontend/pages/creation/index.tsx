@@ -1,7 +1,6 @@
 import { FC, useState } from "react";
 import { isEmpty } from "lodash";
 import styled from "@emotion/styled";
-import { type } from "os";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
@@ -77,25 +76,27 @@ const CreatePlan: FC = () => {
       return null;
     }
 
-    await axios
-      .post(
-        `${BASE_URI}/plans`,
-        {
-          destination,
-          period: Number(period),
-          title,
-        },
-        toAuthorizetionHeader(localStorage.getItem("accessToken"))
-      )
-      .then(() => console.log("Success"));
+    await axios.post(
+      `${BASE_URI}/plans`,
+      {
+        destination,
+        period: Number(period),
+        title,
+      },
+      toAuthorizetionHeader(localStorage.getItem("accessToken"))
+    );
+    // .then((res) => router.push(res.data.id));
   }
 
   return (
     <div
       style={{
-        display: "grid",
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
         height: "100vh",
-        placeItems: "center",
+        justifyContent: "center",
+        rowGap: 50,
         width: "100vw",
       }}
     >

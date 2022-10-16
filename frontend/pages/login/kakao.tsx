@@ -39,9 +39,7 @@ const Kakao: FC = () => {
         width: "100vw",
       }}
     >
-      <KaKaoLoginButton onClick={() => getToken(code)}>
-        토큰 얻기
-      </KaKaoLoginButton>
+      로그인 중입니다.
     </div>
   );
 };

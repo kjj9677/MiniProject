@@ -1,70 +1,79 @@
-import { FC, useState } from "react";
+import { FC, useRef, useState } from "react";
 import { isEmpty } from "lodash";
 import styled from "@emotion/styled";
-import { type } from "os";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 
 const BASE_URI = "http://localhost:3000";
 
-interface Plan {
-  destination: string;
-  period: number;
+interface ScheduleInput {
+  duration: number;
+  scheduleTypeId: number;
   title: string;
 }
 
 const CreateSchedule: FC = () => {
+  const addedSchedulesRef = useRef([]);
   const router = useRouter();
-  const [inputs, setInputs] = useState<Plan>({
-    destination: undefined,
-    period: undefined,
+  const planId = +router.query.planId;
+  const [startTime, setStartTime] = useState<number>(600);
+  const [inputs, setInputs] = useState<ScheduleInput>({
+    duration: undefined,
+    scheduleTypeId: undefined,
     title: undefined,
   });
 
-  const { destination, title, period } = inputs;
+  const { duration, scheduleTypeId, title } = inputs;
 
   const onChange = (e: any) => {
-    {
-      const { value, name } = e.target;
-      setInputs({
-        ...inputs,
-        [name]: value,
-      });
-    }
+    const { value, name } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
   };
 
-  const CREATE_PLAN_TEXT = [
-    {
-      isNumber: false,
-      question: "1. 어디로 떠나시나요?",
-      name: "destination",
-      placeholder: "ex) 강릉",
-      value: destination,
-    },
+  const CREATE_SCHEDULE_TEXT = [
     {
       isNumber: true,
-      question: "2. 며칠 동안 다녀오시나요?",
-      name: "period",
-      placeholder: "ex) 3",
-      value: period,
+      inputTitle: "종류",
+      name: "scheduleTypeId",
+      placeholder: "ex) 1",
+      value: scheduleTypeId,
     },
     {
       isNumber: false,
-      question: "3. 이번 여행에 제목을 붙인다면?",
+      inputTitle: "내용",
       name: "title",
-      placeholder: "ex) OO과 OO의 강릉여행",
+      placeholder: "ex) 강릉버스터미널로 이동",
       value: title,
+    },
+
+    {
+      isNumber: true,
+      inputTitle: "소요 시간(분)",
+      name: "duration",
+      placeholder: "ex) 150",
+      value: duration,
     },
   ];
 
+  function onReset() {
+    setInputs({
+      duration: 0,
+      scheduleTypeId: 0,
+      title: "",
+    });
+  }
+
   function checkAreInputsValid() {
-    if (isEmpty(destination) || isEmpty(period) || isEmpty(title)) {
+    if (isEmpty(scheduleTypeId) || isEmpty(title) || isEmpty(duration)) {
       alert("빈 항목이 있습니다!");
       return false;
     }
 
-    if (Number(period) === 0) {
+    if (Number(duration) === 0) {
       alert("유효하지 않은 기간입니다.");
       return false;
     }
@@ -72,78 +81,95 @@ const CreateSchedule: FC = () => {
     return true;
   }
 
-  async function createPlan() {
+  async function addSchedule() {
     if (!checkAreInputsValid()) {
       return null;
     }
 
-    await axios
-      .post(
-        `${BASE_URI}/plans`,
-        {
-          destination,
-          period: Number(period),
-          title,
-        },
-        toAuthorizetionHeader(localStorage.getItem("accessToken"))
-      )
-      .then(() => console.log("Success"));
+    addedSchedulesRef.current.push({
+      title,
+      duration: +duration,
+      scheduleTypeId: +scheduleTypeId,
+      startTime,
+      planId,
+    });
+    setStartTime(startTime + Number(duration));
+    onReset();
+  }
+
+  function createSchedule() {
+    addedSchedulesRef.current.map(async (addedSchedule) => {
+      await axios
+        .post(
+          `${BASE_URI}/schedules`,
+          addedSchedule,
+          toAuthorizetionHeader(localStorage.getItem("accessToken"))
+        )
+        .then(() => console.log("success"));
+    });
   }
 
   return (
     <div
       style={{
-        display: "grid",
+        alignItems: "center",
+        display: "flex",
+        flexDirection: "column",
         height: "100vh",
-        placeItems: "center",
+        justifyContent: "center",
+        rowGap: 50,
         width: "100vw",
       }}
     >
-      {CREATE_PLAN_TEXT.map(
-        ({ isNumber, name, placeholder, question, value }) => (
-          <PlanInput
+      {CREATE_SCHEDULE_TEXT.map(
+        ({ isNumber, inputTitle, name, placeholder, value }) => (
+          <Input
             key={name}
             name={name}
             onChange={onChange}
             isNumber={isNumber}
+            inputTitle={inputTitle}
             placeholder={placeholder}
-            question={question}
             value={value}
           />
         )
       )}
-      <Button onClick={createPlan}>세부 일정 추가하기</Button>
+      <Button onClick={addSchedule}>세부 일정 추가하기</Button>
+      <Button onClick={createSchedule}>저장하기</Button>
     </div>
   );
 };
 
 export default CreateSchedule;
 
-interface PlanInputProps {
+interface InputProps {
+  inputTitle: string;
   isNumber: boolean;
   name: string;
   onChange: any;
   placeholder: string;
-  question: string;
   value: any;
 }
 
-const PlanInput: FC<PlanInputProps> = ({
+const Input: FC<InputProps> = ({
   isNumber,
   name,
   onChange,
   placeholder,
-  question,
+  inputTitle,
   value,
 }) => {
   return (
     <div
       style={{
+        columnGap: 12,
         display: "grid",
+        gridAutoFlow: "column",
+        height: 60,
         placeItems: "center",
       }}
     >
-      <p>{question}</p>
+      <p>{inputTitle}</p>
       <input
         name={name}
         onChange={onChange}
