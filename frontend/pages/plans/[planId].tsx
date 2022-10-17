@@ -170,32 +170,6 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
         >
           {title}
         </div>
-        {/* <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "#ebebeb",
-            color: "black",
-            display: "flex",
-            height: 30,
-            justifyContent: "center",
-            width: 100,
-          }}
-        >
-          수정
-        </div>
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "#ebebeb",
-            color: "black",
-            display: "flex",
-            height: 30,
-            justifyContent: "center",
-            width: 100,
-          }}
-        >
-          삭제
-        </div> */}
       </div>
     </div>
   );

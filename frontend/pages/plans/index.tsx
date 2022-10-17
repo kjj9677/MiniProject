@@ -62,7 +62,11 @@ const Plans: FC = () => {
           />
         ))}
 
-      <Button>+ 새 계획표 만들기</Button>
+      <Link href="/creation">
+        <a>
+          <Button>+ 새 계획표 만들기</Button>
+        </a>
+      </Link>
     </div>
   );
 };

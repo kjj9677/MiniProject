@@ -113,7 +113,7 @@ const CreatePlan: FC = () => {
           />
         )
       )}
-      <Button onClick={createPlan}>세부 일정 추가하기</Button>
+      <Button onClick={createPlan}>Plan 생성하고 세부 일정 추가하기</Button>
     </div>
   );
 };
@@ -163,5 +163,5 @@ const Button = styled.button(() => ({
   display: "flex",
   justifyContent: "center",
   height: 70,
-  width: 250,
+  width: 350,
 }));

@@ -170,6 +170,7 @@ const CreateSchedule: FC = () => {
           {planInfo.schedules.map(({ id, title, startTime }) => {
             return (
               <ScheduleInfo
+                accessToken={accessToken}
                 key={id}
                 id={id}
                 title={title}
@@ -180,6 +181,7 @@ const CreateSchedule: FC = () => {
           {addedSchedulesRef.current.map(({ id, title, startTime }) => {
             return (
               <ScheduleInfo
+                accessToken={accessToken}
                 key={id}
                 id={id}
                 title={title}
@@ -270,12 +272,25 @@ const Button = styled.button(() => ({
 }));
 
 interface ScheduleInfoProps {
+  accessToken: string;
   id: number;
   startTime: number;
   title: string;
 }
 
-const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
+const ScheduleInfo: FC<ScheduleInfoProps> = ({
+  accessToken,
+  id,
+  startTime,
+  title,
+}) => {
+  const router = useRouter();
+  async function deleteSchedule(id: number) {
+    await axios
+      .delete(`${BASE_URI}/schedules/${id}`, toAuthorizetionHeader(accessToken))
+      .then(() => router.reload());
+  }
+
   return (
     <div
       style={{
@@ -356,6 +371,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
             justifyContent: "center",
             width: 100,
           }}
+          onClick={() => deleteSchedule(id)}
         >
           삭제
         </div>
