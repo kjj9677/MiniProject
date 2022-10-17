@@ -10,7 +10,6 @@ const Plans: FC = () => {
   const [accessToken, setAccessToken] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [planList, setPlanList] = useState<any[]>();
-  const [isFriendsListOpen, setIsFriendsListOpen] = useState(false);
 
   useEffect(() => {
     async function getPlanList(accessToken: string) {

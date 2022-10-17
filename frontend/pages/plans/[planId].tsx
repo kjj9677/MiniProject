@@ -4,6 +4,7 @@ import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
+import Link from "next/link";
 
 const BASE_URI = "http://localhost:3000";
 
@@ -14,8 +15,6 @@ const PlanDetail: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [planInfo, setPlanInfo] = useState<any>();
   const [isFriendsListOpen, setIsFriendsListOpen] = useState(false);
-
-  async function createShare() {}
 
   useEffect(() => {
     async function getPlanDetail(accessToken: string, planId: number) {
@@ -45,22 +44,42 @@ const PlanDetail: FC = () => {
         flexDirection: "column",
         height: "100vh",
         justifyContent: "center",
-        rowGap: 50,
+        rowGap: 80,
         width: "100vw",
       }}
     >
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "darkgray",
-          color: "white",
-          display: "flex",
-          height: 70,
-          justifyContent: "center",
-          width: 250,
-        }}
-      >
-        {planInfo.title}
+      <div style={{ columnGap: 130, display: "flex" }}>
+        <div
+          style={{
+            alignItems: "center",
+            backgroundColor: "darkgray",
+            color: "white",
+            display: "flex",
+            height: 70,
+            justifyContent: "center",
+            width: 250,
+          }}
+        >
+          {planInfo.title}
+        </div>
+        <Link href={`/creation/${planInfo.id}`}>
+          <a>
+            <div
+              style={{
+                alignItems: "center",
+                backgroundColor: "darkgray",
+                color: "white",
+                cursor: "pointer",
+                display: "flex",
+                height: 70,
+                justifyContent: "center",
+                width: 250,
+              }}
+            >
+              일정 수정하기
+            </div>
+          </a>
+        </Link>
       </div>
       <div>
         {planInfo.schedules.map(({ id, title, startTime }) => {
@@ -76,8 +95,10 @@ const PlanDetail: FC = () => {
       </div>
       <Button onClick={() => setIsFriendsListOpen(true)}>공유하기</Button>
       <FriendsList
+        accessToken={accessToken}
         isOpen={isFriendsListOpen}
         onClose={() => setIsFriendsListOpen(false)}
+        planId={planId}
       />
     </div>
   );
@@ -149,7 +170,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
         >
           {title}
         </div>
-        <div
+        {/* <div
           style={{
             alignItems: "center",
             backgroundColor: "#ebebeb",
@@ -174,7 +195,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
           }}
         >
           삭제
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -198,11 +219,18 @@ function getStartTime(startTime: number) {
 }
 
 interface FriendsListProps {
+  accessToken: string;
   isOpen: boolean;
   onClose: () => void;
+  planId: number;
 }
 
-const FriendsList: FC<FriendsListProps> = ({ isOpen, onClose }) => {
+const FriendsList: FC<FriendsListProps> = ({
+  accessToken,
+  isOpen,
+  onClose,
+  planId,
+}) => {
   const [shareTarget, setShareTarget] = useState("");
   const onChange = (e: any) => {
     {
@@ -210,6 +238,25 @@ const FriendsList: FC<FriendsListProps> = ({ isOpen, onClose }) => {
       setShareTarget(value);
     }
   };
+
+  async function createShare() {
+    if (shareTarget.length === 0) {
+      alert("공유하고 싶은 사람을 입력해주세요!");
+      console.log(shareTarget);
+      return null;
+    }
+
+    await axios
+      .post(
+        `${BASE_URI}/shares`,
+        {
+          memberKakaoId: shareTarget,
+          planId,
+        },
+        toAuthorizetionHeader(accessToken)
+      )
+      .then(() => console.log("Success"));
+  }
 
   return (
     <Modal
@@ -223,17 +270,24 @@ const FriendsList: FC<FriendsListProps> = ({ isOpen, onClose }) => {
     >
       <div
         style={{
-          backgroundColor: "darkgray",
+          alignItems: "center",
+          backgroundColor: "#c9d3dd",
           display: "flex",
-          columnGap: 20,
+          flexDirection: "column",
+          justifyContent: "center",
+          rowGap: 20,
           position: "absolute",
-          left: "40%",
+          height: 300,
+          width: 500,
+          left: "38%",
           top: "30%",
         }}
       >
-        <p>누구와 공유하시겠습니까?</p>
-        <input onChange={onChange} value={shareTarget} />
-        <Button>공유하기</Button>
+        <div style={{ columnGap: 20, display: "flex" }}>
+          <p>누구와 공유하시겠습니까?</p>
+          <input onChange={onChange} value={shareTarget} />
+        </div>
+        <Button onClick={createShare}>공유하기</Button>
       </div>
     </Modal>
   );
