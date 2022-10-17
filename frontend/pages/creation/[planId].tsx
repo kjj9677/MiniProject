@@ -6,6 +6,7 @@ import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 
 const BASE_URI = "http://localhost:3000";
+const SCHEDULE_TYPE = ["이동", "식사", "활동", "기타"];
 
 interface ScheduleInput {
   duration: number;
@@ -20,7 +21,7 @@ const CreateSchedule: FC = () => {
   const [startTime, setStartTime] = useState<number>(600);
   const [inputs, setInputs] = useState<ScheduleInput>({
     duration: undefined,
-    scheduleTypeId: undefined,
+    scheduleTypeId: 1,
     title: undefined,
   });
 
@@ -58,14 +59,15 @@ const CreateSchedule: FC = () => {
     });
   };
 
+  const onSelectChange = (e: any) => {
+    const { value } = e.target;
+    setInputs({
+      ...inputs,
+      scheduleTypeId: getScheduleTypeId(value),
+    });
+  };
+
   const CREATE_SCHEDULE_TEXT = [
-    {
-      isNumber: true,
-      inputTitle: "종류",
-      name: "scheduleTypeId",
-      placeholder: "ex) 1",
-      value: scheduleTypeId,
-    },
     {
       isNumber: false,
       inputTitle: "내용",
@@ -92,7 +94,7 @@ const CreateSchedule: FC = () => {
   }
 
   function checkAreInputsValid() {
-    if (isEmpty(scheduleTypeId) || isEmpty(title) || isEmpty(duration)) {
+    if (isEmpty(title) || isEmpty(duration)) {
       alert("빈 항목이 있습니다!");
       return false;
     }
@@ -133,6 +135,7 @@ const CreateSchedule: FC = () => {
     });
   }
 
+  console.log(inputs);
   return (
     <div
       style={{
@@ -200,6 +203,23 @@ const CreateSchedule: FC = () => {
           rowGap: 50,
         }}
       >
+        <div
+          style={{
+            columnGap: 12,
+            display: "grid",
+            gridAutoFlow: "column",
+            height: 60,
+            placeItems: "center",
+          }}
+        >
+          <p>종류</p>
+          <select onChange={onSelectChange} value={scheduleTypeId}>
+            {SCHEDULE_TYPE.map((e) => {
+              return <option>{e}</option>;
+            })}
+          </select>
+        </div>
+
         {CREATE_SCHEDULE_TEXT.map(
           ({ isNumber, inputTitle, name, placeholder, value }) => (
             <Input
@@ -384,4 +404,19 @@ function getStartTime(startTime: number) {
   return `${Math.floor(startTime / 60)}:${
     startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
   }`;
+}
+
+function getScheduleTypeId(value: string) {
+  if (value === "이동") {
+    return 1;
+  }
+
+  if (value === "식사") {
+    return 2;
+  }
+
+  if (value === "활동") {
+    return 3;
+  }
+  return 4;
 }
