@@ -79,7 +79,8 @@ export default Main;
 const KaKaoLoginButton = styled.button(() => ({
   all: "unset",
   alignItems: "center",
-  backgroundColor: "yellow",
+  backgroundColor: "white",
+  cursor: "pointer",
   display: "flex",
   justifyContent: "center",
   height: 70,
