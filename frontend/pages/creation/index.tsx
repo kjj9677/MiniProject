@@ -76,16 +76,17 @@ const CreatePlan: FC = () => {
       return null;
     }
 
-    await axios.post(
-      `${BASE_URI}/plans`,
-      {
-        destination,
-        period: Number(period),
-        title,
-      },
-      toAuthorizetionHeader(localStorage.getItem("accessToken"))
-    );
-    // .then((res) => router.push(res.data.id));
+    await axios
+      .post(
+        `${BASE_URI}/plans`,
+        {
+          destination,
+          period: Number(period),
+          title,
+        },
+        toAuthorizetionHeader(localStorage.getItem("accessToken"))
+      )
+      .then((res) => router.push(`/creation/${res.data.id}`));
   }
 
   return (

@@ -82,16 +82,18 @@ const PlanDetail: FC = () => {
         </Link>
       </div>
       <div>
-        {planInfo.schedules.map(({ id, title, startTime }) => {
-          return (
-            <ScheduleInfo
-              key={id}
-              id={id}
-              title={title}
-              startTime={startTime}
-            />
-          );
-        })}
+        {planInfo.schedules
+          .sort((a, b) => a.startTime - b.startTime)
+          .map(({ id, title, startTime }) => {
+            return (
+              <ScheduleInfo
+                key={id}
+                id={id}
+                title={title}
+                startTime={startTime}
+              />
+            );
+          })}
       </div>
       <Button onClick={() => setIsFriendsListOpen(true)}>공유하기</Button>
       <FriendsList

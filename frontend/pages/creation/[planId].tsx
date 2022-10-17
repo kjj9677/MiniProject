@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
+import Modal from "react-modal";
 
 const BASE_URI = "http://localhost:3000";
 const SCHEDULE_TYPE = ["이동", "식사", "활동", "기타"];
@@ -18,7 +19,7 @@ const CreateSchedule: FC = () => {
   const addedSchedulesRef = useRef([]);
   const router = useRouter();
   const planId = +router.query.planId;
-  const [startTime, setStartTime] = useState<number>(600);
+  const [startTime, setStartTime] = useState<number>();
   const [inputs, setInputs] = useState<ScheduleInput>({
     duration: undefined,
     scheduleTypeId: 1,
@@ -38,6 +39,15 @@ const CreateSchedule: FC = () => {
         toAuthorizetionHeader(accessToken)
       );
       setPlanInfo(data);
+      if (data.schedules.length > 0) {
+        const newSchedules = data.schedules.sort(
+          (a, b) => a.startTime - b.startTime
+        );
+        setStartTime(
+          +newSchedules[newSchedules.length - 1].startTime +
+            +newSchedules[newSchedules.length - 1].duration
+        );
+      }
     }
 
     setAccessToken(localStorage.getItem("accessToken"));
@@ -65,6 +75,11 @@ const CreateSchedule: FC = () => {
       ...inputs,
       scheduleTypeId: getScheduleTypeId(value),
     });
+  };
+
+  const onStartChange = (e: any) => {
+    const { value } = e.target;
+    setStartTime(value);
   };
 
   const CREATE_SCHEDULE_TEXT = [
@@ -116,10 +131,10 @@ const CreateSchedule: FC = () => {
       title,
       duration: +duration,
       scheduleTypeId: +scheduleTypeId,
-      startTime,
+      startTime: +startTime,
       planId,
     });
-    setStartTime(startTime + Number(duration));
+    setStartTime(+startTime + Number(duration));
     onReset();
   }
 
@@ -131,11 +146,10 @@ const CreateSchedule: FC = () => {
           addedSchedule,
           toAuthorizetionHeader(accessToken)
         )
-        .then(() => console.log("success"));
+        .then(() => router.reload());
     });
   }
 
-  console.log(inputs);
   return (
     <div
       style={{
@@ -170,17 +184,19 @@ const CreateSchedule: FC = () => {
           {planInfo.title}
         </div>
         <div>
-          {planInfo.schedules.map(({ id, title, startTime }) => {
-            return (
-              <ScheduleInfo
-                accessToken={accessToken}
-                key={id}
-                id={id}
-                title={title}
-                startTime={startTime}
-              />
-            );
-          })}
+          {planInfo.schedules
+            .sort((a, b) => a.startTime - b.startTime)
+            .map(({ id, title, startTime }) => {
+              return (
+                <ScheduleInfo
+                  accessToken={accessToken}
+                  key={id}
+                  id={id}
+                  title={title}
+                  startTime={startTime}
+                />
+              );
+            })}
           {addedSchedulesRef.current.map(({ id, title, startTime }) => {
             return (
               <ScheduleInfo
@@ -213,17 +229,20 @@ const CreateSchedule: FC = () => {
           }}
         >
           <p>종류</p>
-          <select onChange={onSelectChange} value={scheduleTypeId}>
+          <select
+            onChange={onSelectChange}
+            value={SCHEDULE_TYPE[scheduleTypeId - 1]}
+          >
             {SCHEDULE_TYPE.map((e) => {
-              return <option>{e}</option>;
+              return <option key={e}>{e}</option>;
             })}
           </select>
         </div>
 
         {CREATE_SCHEDULE_TEXT.map(
-          ({ isNumber, inputTitle, name, placeholder, value }) => (
+          ({ isNumber, inputTitle, name, placeholder, value }, idx) => (
             <Input
-              key={name}
+              key={idx}
               name={name}
               onChange={onChange}
               isNumber={isNumber}
@@ -233,6 +252,24 @@ const CreateSchedule: FC = () => {
             />
           )
         )}
+        <div
+          style={{
+            columnGap: 12,
+            display: "grid",
+            gridAutoFlow: "column",
+            height: 60,
+            placeItems: "center",
+          }}
+        >
+          <p>시작 시간(분)</p>
+          <input
+            name="startTime"
+            onChange={onStartChange}
+            placeholder="ex) 600"
+            type="number"
+            value={startTime}
+          />
+        </div>
         <Button onClick={addSchedule}>세부 일정 추가하기</Button>
         <Button onClick={createSchedule}>저장하기</Button>
       </div>
@@ -305,12 +342,8 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
   title,
 }) => {
   const router = useRouter();
-  async function deleteSchedule(id: number) {
-    await axios
-      .delete(`${BASE_URI}/schedules/${id}`, toAuthorizetionHeader(accessToken))
-      .then(() => router.reload());
-  }
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
   return (
     <div
       style={{
@@ -378,6 +411,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
             justifyContent: "center",
             width: 100,
           }}
+          onClick={() => setIsModifyModalOpen(true)}
         >
           수정
         </div>
@@ -391,11 +425,23 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
             justifyContent: "center",
             width: 100,
           }}
-          onClick={() => deleteSchedule(id)}
+          onClick={() => setIsModalOpen(true)}
         >
           삭제
         </div>
       </div>
+      <DeleteModal
+        scheduleId={id}
+        onClose={() => setIsModalOpen(false)}
+        accessToken={accessToken}
+        isOpen={isModalOpen}
+      />
+      <ModifyModal
+        scheduleId={id}
+        onClose={() => setIsModifyModalOpen(false)}
+        accessToken={accessToken}
+        isOpen={isModifyModalOpen}
+      />
     </div>
   );
 };
@@ -420,3 +466,278 @@ function getScheduleTypeId(value: string) {
   }
   return 4;
 }
+
+interface ModifyModalProps {
+  accessToken: string;
+  isOpen: boolean;
+  onClose: () => void;
+  scheduleId: number;
+  // startTime: number;
+  // title: string;
+  // duration: number;
+  // scheduleTypeId: number;
+}
+
+const ModifyModal: FC<ModifyModalProps> = ({
+  accessToken,
+  isOpen,
+  onClose,
+  scheduleId,
+  // startTime,
+  // title,
+  // duration,
+  // scheduleTypeId,
+}) => {
+  const [startTime, setStartTime] = useState<number>();
+  const [inputs, setInputs] = useState<ScheduleInput>({
+    duration: undefined,
+    scheduleTypeId: 1,
+    title: undefined,
+  });
+
+  const { duration, scheduleTypeId, title } = inputs;
+
+  const router = useRouter();
+  async function modifySchedule() {
+    await axios
+      .put(
+        `${BASE_URI}/schedules/${scheduleId}`,
+        {
+          duration: +duration,
+          scheduleTypeId: +scheduleTypeId,
+          title,
+          startTime: +startTime,
+        },
+        toAuthorizetionHeader(accessToken)
+      )
+      .then(() => router.reload());
+  }
+
+  const onChange = (e: any) => {
+    const { value, name } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  };
+
+  const onSelectChange = (e: any) => {
+    const { value } = e.target;
+    setInputs({
+      ...inputs,
+      scheduleTypeId: getScheduleTypeId(value),
+    });
+  };
+
+  const onStartChange = (e: any) => {
+    const { value } = e.target;
+    setStartTime(+value);
+  };
+
+  const CREATE_SCHEDULE_TEXT = [
+    {
+      isNumber: false,
+      inputTitle: "내용",
+      name: "title",
+      placeholder: "ex) 강릉버스터미널로 이동",
+      value: title,
+    },
+
+    {
+      isNumber: true,
+      inputTitle: "소요 시간(분)",
+      name: "duration",
+      placeholder: "ex) 150",
+      value: duration,
+    },
+  ];
+
+  return (
+    <Modal
+      ariaHideApp={false}
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      style={{
+        content: { all: "unset" },
+        overlay: { backgroundColor: "rgba(0, 0, 0, 0.25)", zIndex: 5 },
+      }}
+    >
+      <div
+        style={{
+          alignItems: "center",
+          backgroundColor: "white",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          rowGap: 20,
+          position: "absolute",
+          height: 730,
+          width: 400,
+          left: "40%",
+          top: "20%",
+        }}
+      >
+        <div
+          style={{
+            columnGap: 12,
+            display: "grid",
+            gridAutoFlow: "column",
+            height: 60,
+            placeItems: "center",
+          }}
+        >
+          <p>종류</p>
+          <select
+            onChange={onSelectChange}
+            value={SCHEDULE_TYPE[scheduleTypeId - 1]}
+          >
+            {SCHEDULE_TYPE.map((e) => {
+              return <option key={e}>{e}</option>;
+            })}
+          </select>
+        </div>
+        {CREATE_SCHEDULE_TEXT.map(
+          ({ isNumber, inputTitle, name, placeholder, value }, idx) => (
+            <Input
+              key={idx}
+              name={name}
+              onChange={onChange}
+              isNumber={isNumber}
+              inputTitle={inputTitle}
+              placeholder={placeholder}
+              value={value}
+            />
+          )
+        )}
+        <div
+          style={{
+            columnGap: 12,
+            display: "grid",
+            gridAutoFlow: "column",
+            height: 60,
+            placeItems: "center",
+          }}
+        >
+          <p>시작 시간(분)</p>
+          <input
+            name="startTime"
+            onChange={onStartChange}
+            placeholder="ex) 600"
+            type="number"
+            value={startTime}
+          />
+        </div>
+        <div style={{ display: "flex", columnGap: 30 }}>
+          <div
+            style={{
+              cursor: "pointer",
+              display: "grid",
+              placeItems: "center",
+              height: 30,
+              width: 70,
+              backgroundColor: "#ebebeb",
+            }}
+            onClick={modifySchedule}
+          >
+            확인
+          </div>
+          <div
+            style={{
+              cursor: "pointer",
+              display: "grid",
+              placeItems: "center",
+              height: 30,
+              width: 70,
+              backgroundColor: "#ebebeb",
+            }}
+            onClick={onClose}
+          >
+            취소
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+interface DeleteModalProps {
+  accessToken: string;
+  isOpen: boolean;
+  onClose: () => void;
+  scheduleId: number;
+}
+
+const DeleteModal: FC<DeleteModalProps> = ({
+  accessToken,
+  isOpen,
+  onClose,
+  scheduleId,
+}) => {
+  const router = useRouter();
+  async function deleteSchedule() {
+    await axios
+      .delete(
+        `${BASE_URI}/schedules/${scheduleId}`,
+        toAuthorizetionHeader(accessToken)
+      )
+      .then(() => router.reload());
+  }
+
+  return (
+    <Modal
+      ariaHideApp={false}
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      style={{
+        content: { all: "unset" },
+        overlay: { backgroundColor: "rgba(0, 0, 0, 0.25)", zIndex: 5 },
+      }}
+    >
+      <div
+        style={{
+          alignItems: "center",
+          backgroundColor: "#c9d3dd",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          rowGap: 20,
+          position: "absolute",
+          height: 130,
+          width: 300,
+          left: "42%",
+          top: "30%",
+        }}
+      >
+        <p>해당 일정을 삭제하시겠습니까?</p>
+        <div style={{ display: "flex", columnGap: 30 }}>
+          <div
+            style={{
+              cursor: "pointer",
+              display: "grid",
+              placeItems: "center",
+              height: 30,
+              width: 70,
+              backgroundColor: "#ebebeb",
+            }}
+            onClick={deleteSchedule}
+          >
+            확인
+          </div>
+          <div
+            style={{
+              cursor: "pointer",
+              display: "grid",
+              placeItems: "center",
+              height: 30,
+              width: 70,
+              backgroundColor: "#ebebeb",
+            }}
+            onClick={onClose}
+          >
+            취소
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
