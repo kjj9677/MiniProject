@@ -16,15 +16,6 @@ export type FontSizeVariant =
   | "28"
   | "32"
   | "80";
-export type FontColorVariant =
-  | "GRAY"
-  | "GRAY_DARK"
-  | "MAIN_TEXT"
-  | "PURPLE"
-  | "PURPLE_DARK"
-  | "PURPLE_TRANSPARENT"
-  | "SECONDARY_TEXT"
-  | "WHITE";
 
 const FontWeight: Record<FontWeightVariant, number> = {
   "500": 500,
@@ -32,9 +23,9 @@ const FontWeight: Record<FontWeightVariant, number> = {
 };
 
 export interface TypographyProps {
-  color?: FontColorVariant;
-  size?: FontSizeVariant | FontSizeVariant[];
-  weight?: FontWeightVariant | FontWeightVariant[];
+  color?: string;
+  size?: FontSizeVariant;
+  weight?: FontWeightVariant;
 }
 
 const FontSize: Record<FontSizeVariant, number> = {
@@ -53,11 +44,11 @@ const FontSize: Record<FontSizeVariant, number> = {
 };
 
 const Typography = styled.p<TypographyProps>(
-  ({ color = "MAIN_TEXT", size = "24", weight = "700" }) => ({
+  ({ color = "black", size = "18", weight = "700" }) => ({
     all: "unset",
     color: color,
-    fontSize: size,
-    fontWeight: weight,
+    fontSize: FontSize[size],
+    fontWeight: FontWeight[weight],
     whiteSpace: "pre-line",
     wordBreak: "break-all",
   })

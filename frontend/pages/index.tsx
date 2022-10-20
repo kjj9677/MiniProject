@@ -1,7 +1,8 @@
 import { FC, useEffect, useState } from "react";
 import Link from "next/link";
-import styled from "@emotion/styled";
 import { useRouter } from "next/router";
+
+import Button from "../src/components/base/Button";
 
 const REDIRECT_URI = "http://localhost:3001/login/kakao";
 
@@ -45,15 +46,15 @@ const Main: FC = () => {
       >
         <Link href="/creation">
           <a>
-            <KaKaoLoginButton>새 계획표 만들기</KaKaoLoginButton>
+            <Button>새 계획표 만들기</Button>
           </a>
         </Link>
         <Link href="/plans">
           <a>
-            <KaKaoLoginButton>이전 계획표 보기</KaKaoLoginButton>
+            <Button>이전 계획표 보기</Button>
           </a>
         </Link>
-        <KaKaoLoginButton onClick={logOut}>로그아웃</KaKaoLoginButton>
+        <Button onClick={logOut}>로그아웃</Button>
       </div>
     );
   }
@@ -67,22 +68,9 @@ const Main: FC = () => {
         width: "100vw",
       }}
     >
-      <KaKaoLoginButton onClick={loginWithKakao}>
-        카카오톡으로 로그인하기
-      </KaKaoLoginButton>
+      <Button onClick={loginWithKakao}>카카오로 로그인하기</Button>
     </div>
   );
 };
 
 export default Main;
-
-const KaKaoLoginButton = styled.button(() => ({
-  all: "unset",
-  alignItems: "center",
-  backgroundColor: "white",
-  cursor: "pointer",
-  display: "flex",
-  justifyContent: "center",
-  height: 70,
-  width: 250,
-}));
