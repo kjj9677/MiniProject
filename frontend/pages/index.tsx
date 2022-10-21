@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
-import Button from "../src/components/base/Button";
+import Button from "../src/components/Button";
 
 const REDIRECT_URI = "http://localhost:3001/login/kakao";
 

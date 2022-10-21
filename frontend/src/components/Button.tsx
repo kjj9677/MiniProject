@@ -25,7 +25,7 @@ const StyledButtonContainer = styled.button<StyledButtonContainerProps>(
     boxSizing: "border-box",
     cursor: "pointer",
     display: "flex",
-    height: 70,
+    height: 65,
     justifyContent: "center",
     width,
   })
