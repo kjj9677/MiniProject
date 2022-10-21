@@ -2,66 +2,57 @@
 
 import styled from "@emotion/styled";
 import { Dispatch, FC, SetStateAction } from "react";
-import { Plan } from "../../pages/creation";
+import CreatePlan, { Plan } from "../../pages/creation";
 import Typography from "./Typography";
 
 export interface PlanInputFormProps {
+  createPlan: () => void;
   inputs: Plan;
+  isFirst: boolean;
+  isLast: boolean;
+  name: string;
+  question: string;
   setInputs: Dispatch<SetStateAction<Plan>>;
   setStage: Dispatch<SetStateAction<number>>;
-  stage: number;
+  unit: string;
+  value: string | number;
 }
 
 const PlanInputForm: FC<PlanInputFormProps> = ({
+  createPlan,
   inputs,
+  isFirst,
+  isLast,
+  name,
+  question,
   setInputs,
   setStage,
-  stage,
+  unit,
+  value,
 }) => {
-  const { destination, period, title } = inputs;
-  const PLAN_INPUT_VARIABLES = [
-    {
-      isNumber: false,
-      question: "1. 어디로 떠나시나요?",
-      name: "destination",
-      value: destination,
-    },
-    {
-      isNumber: true,
-      question: "2. 며칠 동안 다녀오시나요?",
-      name: "period",
-      value: period,
-    },
-    {
-      isNumber: false,
-      question: "3. 이번 여행에 제목을 붙인다면?",
-      name: "title",
-      value: title,
-    },
-  ];
-
   const onChange = (e: any) => {
     {
       const { value, name } = e.target;
       setInputs({
         ...inputs,
-        [PLAN_INPUT_VARIABLES[stage - 1].name]: value,
+        [name]: value,
       });
     }
   };
 
   return (
     <InputFormContainer>
-      <Typography size="24">
-        {PLAN_INPUT_VARIABLES[stage - 1].question}
-      </Typography>
+      <Typography size="24">{question}</Typography>
       <StyledInput
+        name={name}
         onChange={onChange}
-        value={PLAN_INPUT_VARIABLES[stage - 1].value}
+        spellCheck={false}
+        value={value}
       />
       <InputFormButtons
-        isFirst={stage === 1}
-        isLast={stage === PLAN_INPUT_VARIABLES.length}
+        createPlan={createPlan}
+        isFirst={isFirst}
+        isLast={isLast}
         setStage={setStage}
       />
     </InputFormContainer>
@@ -70,43 +61,43 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
 
 export default PlanInputForm;
 
-interface InputFormButtonsProps {
-  isFirst: boolean;
-  isLast: boolean;
-  setStage: Dispatch<SetStateAction<number>>;
-}
-
-const InputFormButtons: FC<InputFormButtonsProps> = ({
-  isFirst,
-  isLast,
-  setStage,
-}) => {
-  if (isFirst) {
-    return (
-      <StyledButton onClick={() => setStage((prev) => prev + 1)}>
-        <Typography color="white">다음</Typography>
-      </StyledButton>
-    );
-  } else if (isLast) {
-    return (
-      <StyledButton>
-        <Typography color="white">세부 일정 추가하기</Typography>
-      </StyledButton>
-    );
-  }
+const InputFormButtons: FC<
+  Pick<PlanInputFormProps, "createPlan" | "isFirst" | "isLast" | "setStage">
+> = ({ createPlan, isFirst, isLast, setStage }) => {
   return (
     <ButtonsContainer>
-      <StyledButton onClick={() => setStage((prev) => prev - 1)}>
-        <Typography color="white">이전</Typography>
+      <StyledButton
+        onClick={() => (isLast ? createPlan() : setStage((prev) => prev + 1))}
+      >
+        <Typography color="white">
+          {isLast ? "세부 일정 추가하기" : "다음 단계로 넘어가기"}
+        </Typography>
       </StyledButton>
-      <StyledButton onClick={() => setStage((prev) => prev + 1)}>
-        <Typography color="white">다음</Typography>
-      </StyledButton>
+      {!isFirst && (
+        <Typography
+          color="black"
+          onClick={() => setStage((prev) => prev - 1)}
+          size="14"
+          style={{
+            cursor: "pointer",
+            textDecoration: "underline 2px solid",
+            textUnderlineOffset: 6,
+          }}
+        >
+          이전 단계로 돌아가기
+        </Typography>
+      )}
     </ButtonsContainer>
   );
 };
 
-const ButtonsContainer = styled.div({ display: "flex", columnGap: 20 });
+const ButtonsContainer = styled.div({
+  alignItems: "center",
+  display: "flex",
+  flexDirection: "column",
+  height: 80,
+  rowGap: 10,
+});
 
 const InputFormContainer = styled.div({
   alignItems: "center",
@@ -114,6 +105,7 @@ const InputFormContainer = styled.div({
   borderRadius: 5,
   display: "flex",
   flexDirection: "column",
+  flexShrink: 0,
   height: 300,
   justifyContent: "center",
   rowGap: 30,

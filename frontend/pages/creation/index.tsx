@@ -3,8 +3,8 @@ import { isEmpty } from "lodash";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
-import Button from "../../src/components/Button";
 import PlanInputForm from "../../src/components/PlanInputForm";
+import styled from "@emotion/styled";
 
 const BASE_URI = "http://localhost:3000";
 
@@ -24,28 +24,11 @@ const CreatePlan: FC = () => {
   });
 
   const { destination, title, period } = inputs;
-
-  const onChange = (e: any) => {
-    {
-      const { value, name } = e.target;
-      setInputs({
-        ...inputs,
-        [name]: value,
-      });
-    }
-  };
-
   function checkAreInputsValid() {
     if (isEmpty(destination) || isEmpty(period) || isEmpty(title)) {
       alert("빈 항목이 있습니다!");
       return false;
     }
-
-    if (Number(period) === 0) {
-      alert("유효하지 않은 기간입니다.");
-      return false;
-    }
-
     return true;
   }
 
@@ -67,7 +50,29 @@ const CreatePlan: FC = () => {
       .then((res) => router.push(`/creation/${res.data.id}`));
   }
 
-  console.log(inputs);
+  const PLAN_INPUT_VARIABLES = [
+    {
+      isNumber: false,
+      name: "destination",
+      question: "1. 어디로 떠나시나요?",
+      unit: "",
+      value: destination,
+    },
+    {
+      isNumber: true,
+      name: "period",
+      question: "2. 며칠 동안 다녀오시나요?(일)",
+      unit: "(일)",
+      value: period,
+    },
+    {
+      isNumber: false,
+      name: "title",
+      question: "3. 이번 여행에 제목을 붙인다면?",
+      unit: "",
+      value: title,
+    },
+  ];
   return (
     <div
       style={{
@@ -80,51 +85,33 @@ const CreatePlan: FC = () => {
         width: "100vw",
       }}
     >
-      <PlanInputForm
-        inputs={inputs}
-        setInputs={setInputs}
-        setStage={setStage}
-        stage={stage}
-      />
-      <Button onClick={createPlan}>세부 일정 추가하기</Button>
+      <PlanInputFormsContainer>
+        <div style={{ display: "flex", marginLeft: (stage - 1) * -400 }}>
+          {PLAN_INPUT_VARIABLES.map(({ name, question, unit, value }, idx) => (
+            <PlanInputForm
+              createPlan={createPlan}
+              inputs={inputs}
+              isFirst={idx === 0}
+              isLast={idx === PLAN_INPUT_VARIABLES.length - 1}
+              key={name}
+              name={name}
+              question={question}
+              setInputs={setInputs}
+              setStage={setStage}
+              unit={unit}
+              value={value}
+            />
+          ))}
+        </div>
+      </PlanInputFormsContainer>
     </div>
   );
 };
 
 export default CreatePlan;
 
-interface PlanInputProps {
-  isNumber: boolean;
-  name: string;
-  onChange: any;
-  placeholder: string;
-  question: string;
-  value: any;
-}
-
-const PlanInput: FC<PlanInputProps> = ({
-  isNumber,
-  name,
-  onChange,
-  placeholder,
-  question,
-  value,
-}) => {
-  return (
-    <div
-      style={{
-        display: "grid",
-        placeItems: "center",
-      }}
-    >
-      <p>{question}</p>
-      <input
-        name={name}
-        onChange={onChange}
-        placeholder={placeholder}
-        type={isNumber ? "number" : "text"}
-        value={value}
-      />
-    </div>
-  );
-};
+const PlanInputFormsContainer = styled.div({
+  display: "flex",
+  overflow: "hidden",
+  width: 400,
+});
