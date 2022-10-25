@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-sync-scripts */
 import Document, { Html, Head, Main, NextScript } from "next/document";
 
 class MyDocument extends Document {
@@ -5,7 +6,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+          <script src="https://developers.kakao.com/sdk/js/kakao.js" />
         </Head>
         <body>
           <Main />
