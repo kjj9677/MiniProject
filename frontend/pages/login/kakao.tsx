@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 
-const BASIC_URI = "http://localhost:3000";
+const BASIC_URI = "http://211.197.23.229:3031";
 
 async function getToken(code: string | string[]) {
   const data = await axios

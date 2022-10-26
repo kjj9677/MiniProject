@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import Modal from "react-modal";
 import Link from "next/link";
 
-const BASE_URI = "http://localhost:3000";
+const BASE_URI = "http://211.197.23.229:3031";
 
 const PlanDetail: FC = () => {
   const router = useRouter();

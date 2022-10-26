@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 
 import Button from "../src/components/Button";
 
-const REDIRECT_URI = "http://localhost:3030/login/kakao";
+const REDIRECT_URI = "http://211.197.23.229:3030/login/kakao";
 
 const Main: FC = () => {
   const router = useRouter();

@@ -6,7 +6,7 @@ import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
 
-const BASE_URI = "http://localhost:3000";
+const BASE_URI = "http://211.197.23.229:3030";
 const SCHEDULE_TYPE = ["이동", "식사", "활동", "기타"];
 
 interface ScheduleInput {

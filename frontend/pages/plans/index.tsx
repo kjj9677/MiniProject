@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 
-const BASE_URI = "http://localhost:3000";
+const BASE_URI = "http://211.197.23.229:3031";
 
 const Plans: FC = () => {
   const [accessToken, setAccessToken] = useState<string>();

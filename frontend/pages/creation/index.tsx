@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import PlanInputForm from "../../src/components/PlanInputForm";
 import styled from "@emotion/styled";
 
-const BASE_URI = "http://localhost:3000";
+const BASE_URI = "http://211.197.23.229:3031";
 
 export interface Plan {
   destination: string;
