@@ -6,7 +6,7 @@ import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
 
-const BASE_URI = "http://211.197.23.229:3030";
+const BASE_URI = "http://211.197.23.229:3031";
 const SCHEDULE_TYPE = ["이동", "식사", "활동", "기타"];
 
 interface ScheduleInput {
@@ -184,19 +184,20 @@ const CreateSchedule: FC = () => {
           {planInfo.title}
         </div>
         <div>
-          {planInfo.schedules
-            .sort((a, b) => a.startTime - b.startTime)
-            .map(({ id, title, startTime }) => {
-              return (
-                <ScheduleInfo
-                  accessToken={accessToken}
-                  key={id}
-                  id={id}
-                  title={title}
-                  startTime={startTime}
-                />
-              );
-            })}
+          {planInfo.schedules &&
+            planInfo.schedules
+              .sort((a, b) => a.startTime - b.startTime)
+              .map(({ id, title, startTime }) => {
+                return (
+                  <ScheduleInfo
+                    accessToken={accessToken}
+                    key={id}
+                    id={id}
+                    title={title}
+                    startTime={startTime}
+                  />
+                );
+              })}
           {addedSchedulesRef.current.map(({ id, title, startTime }) => {
             return (
               <ScheduleInfo
