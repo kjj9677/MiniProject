@@ -16,7 +16,7 @@ const GET_USERINFO_URI = 'https://kapi.kakao.com/v2/user/me';
 const GET_FRIENDS_URI =
   'https://kapi.kakao.com/v1/api/talk/friends?friend_order=nickname&limit=100&order=asc';
 const GRANT_TYPE = 'authorization_code';
-const REDIRECT_URI = 'http://localhost:3050/login/kakao';
+const REDIRECT_URI = 'http://localhost:3030/login/kakao';
 const CONTENT_TYPE = 'application/x-www-form-urlencoded;charset=utf-8';
 
 @Injectable()
