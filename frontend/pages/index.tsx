@@ -46,15 +46,17 @@ const Main: FC = () => {
       >
         <Link href="/creation">
           <a>
-            <Button>새 계획표 만들기</Button>
+            <Button color="white">새 계획표 만들기</Button>
           </a>
         </Link>
         <Link href="/plans">
           <a>
-            <Button>이전 계획표 보기</Button>
+            <Button color="white">이전 계획표 보기</Button>
           </a>
         </Link>
-        <Button onClick={logOut}>로그아웃</Button>
+        <Button color="white" onClick={logOut}>
+          로그아웃
+        </Button>
       </div>
     );
   }

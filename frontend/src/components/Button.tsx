@@ -9,18 +9,22 @@ import Typography from "./Typography";
 export type ButtonColorVariant = "PURPLE" | "PURPLE_TRANSPARENT" | "WHITE";
 
 export interface StyledButtonContainerProps {
+  color: string;
   width: number | string | (number | string)[];
 }
 
 const StyledButtonContainer = styled.button<StyledButtonContainerProps>(
-  ({ width }) => ({
+  ({ color, width }) => ({
     all: "unset",
     ": disabled": {
       backgroundColor: "#D3D4D8",
       cursor: "default",
     },
+    ": hover: enabled": {
+      backgroundColor: "yellow",
+    },
     alignItems: "center",
-    backgroundColor: "yellow",
+    backgroundColor: color,
     borderRadius: 5,
     boxSizing: "border-box",
     cursor: "pointer",
@@ -34,12 +38,14 @@ const StyledButtonContainer = styled.button<StyledButtonContainerProps>(
 const StyledButton: FC<ButtonProps> = ({
   children,
   className,
+  color,
   disabled,
   onClick,
   width,
 }) => (
   <StyledButtonContainer
     className={className}
+    color={color}
     disabled={disabled}
     onClick={onClick}
     width={width}
@@ -51,6 +57,7 @@ const StyledButton: FC<ButtonProps> = ({
 export interface ButtonProps {
   children: ReactNode;
   className?: string;
+  color?: string;
   disabled?: boolean;
   to?: string;
   onClick?: ReactEventHandler<HTMLButtonElement>;
@@ -60,6 +67,7 @@ export interface ButtonProps {
 const Button: FC<ButtonProps> = ({
   children,
   className,
+  color = "yellow",
   disabled = false,
   onClick,
   to,
@@ -69,7 +77,12 @@ const Button: FC<ButtonProps> = ({
     return (
       <Link href={to}>
         <a href={to}>
-          <StyledButton className={className} disabled={disabled} width={width}>
+          <StyledButton
+            className={className}
+            color={color}
+            disabled={disabled}
+            width={width}
+          >
             {children}
           </StyledButton>
         </a>
@@ -80,6 +93,7 @@ const Button: FC<ButtonProps> = ({
   return (
     <StyledButton
       className={className}
+      color={color}
       disabled={disabled}
       onClick={onClick}
       width={width}
