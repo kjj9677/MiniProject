@@ -20,9 +20,6 @@ const StyledButtonContainer = styled.button<StyledButtonContainerProps>(
       backgroundColor: "#D3D4D8",
       cursor: "default",
     },
-    ": hover: enabled": {
-      backgroundColor: "yellow",
-    },
     alignItems: "center",
     backgroundColor: color,
     borderRadius: 5,
