@@ -2,6 +2,7 @@
 
 import styled from "@emotion/styled";
 import { Dispatch, FC, SetStateAction } from "react";
+import { isEmpty } from "lodash";
 import { Plan } from "../../pages/creation";
 import Typography from "./Typography";
 
@@ -10,6 +11,7 @@ export interface PlanInputFormProps {
   inputs: Plan;
   isFirst: boolean;
   isLast: boolean;
+  isNumber: boolean;
   name: string;
   question: string;
   setInputs: Dispatch<SetStateAction<Plan>>;
@@ -23,6 +25,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   inputs,
   isFirst,
   isLast,
+  isNumber,
   name,
   question,
   setInputs,
@@ -30,23 +33,22 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   unit,
   value,
 }) => {
-  const onChange = (e: any) => {
+  function onChange(e: any) {
     const { value, name } = e.target;
+    const newValue = isNumber ? +value.replace(/[^0-9]/g, "") : value;
     setInputs({
       ...inputs,
-      [name]: value,
+      [name]: newValue,
     });
-  };
+  }
 
-  const onEnterUp = (e: any) => {
+  function onKeyUp(e: any) {
     if (e.key === "Enter") {
-      const { value, name } = e.target;
-      setInputs({
-        ...inputs,
-        [name]: value,
-      });
+      if (!isLast) {
+        setStage((prev) => prev + 1);
+      }
     }
-  };
+  }
 
   return (
     <InputFormContainer>
@@ -54,7 +56,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
       <StyledInput
         name={name}
         onChange={onChange}
-        onKeyUp={onEnterUp}
+        onKeyUp={onKeyUp}
         spellCheck={false}
         value={value}
       />
@@ -63,6 +65,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
         isFirst={isFirst}
         isLast={isLast}
         setStage={setStage}
+        value={value}
       />
     </InputFormContainer>
   );
@@ -71,13 +74,21 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
 export default PlanInputForm;
 
 const InputFormButtons: FC<
-  Pick<PlanInputFormProps, "createPlan" | "isFirst" | "isLast" | "setStage">
-> = ({ createPlan, isFirst, isLast, setStage }) => {
+  Pick<
+    PlanInputFormProps,
+    "createPlan" | "isFirst" | "isLast" | "setStage" | "value"
+  >
+> = ({ createPlan, isFirst, isLast, setStage, value }) => {
+  function onButtonClick() {
+    if (isEmpty(value)) {
+      alert("정보를 입력해주세요");
+      return;
+    }
+    isLast ? createPlan() : setStage((prev) => prev + 1);
+  }
   return (
     <ButtonsContainer>
-      <StyledButton
-        onClick={() => (isLast ? createPlan() : setStage((prev) => prev + 1))}
-      >
+      <StyledButton onClick={onButtonClick}>
         <Typography color="white">
           {isLast ? "세부 일정 추가하기" : "다음 단계로 넘어가기"}
         </Typography>

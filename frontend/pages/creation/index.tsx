@@ -34,7 +34,7 @@ const CreatePlan: FC = () => {
 
   async function createPlan() {
     if (!checkAreInputsValid()) {
-      return null;
+      return;
     }
 
     await axios
@@ -87,21 +87,24 @@ const CreatePlan: FC = () => {
     >
       <PlanInputFormsContainer>
         <div style={{ display: "flex", marginLeft: (stage - 1) * -400 }}>
-          {PLAN_INPUT_VARIABLES.map(({ name, question, unit, value }, idx) => (
-            <PlanInputForm
-              createPlan={createPlan}
-              inputs={inputs}
-              isFirst={idx === 0}
-              isLast={idx === PLAN_INPUT_VARIABLES.length - 1}
-              key={name}
-              name={name}
-              question={question}
-              setInputs={setInputs}
-              setStage={setStage}
-              unit={unit}
-              value={value}
-            />
-          ))}
+          {PLAN_INPUT_VARIABLES.map(
+            ({ isNumber, name, question, unit, value }, idx) => (
+              <PlanInputForm
+                createPlan={createPlan}
+                inputs={inputs}
+                isFirst={idx === 0}
+                isLast={idx === PLAN_INPUT_VARIABLES.length - 1}
+                isNumber={isNumber}
+                key={name}
+                name={name}
+                question={question}
+                setInputs={setInputs}
+                setStage={setStage}
+                unit={unit}
+                value={value}
+              />
+            )
+          )}
         </div>
       </PlanInputFormsContainer>
     </div>
