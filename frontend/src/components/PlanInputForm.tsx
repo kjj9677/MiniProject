@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled";
 import { Dispatch, FC, SetStateAction } from "react";
-import CreatePlan, { Plan } from "../../pages/creation";
+import { Plan } from "../../pages/creation";
 import Typography from "./Typography";
 
 export interface PlanInputFormProps {
@@ -31,7 +31,15 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   value,
 }) => {
   const onChange = (e: any) => {
-    {
+    const { value, name } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  };
+
+  const onEnterUp = (e: any) => {
+    if (e.key === "Enter") {
       const { value, name } = e.target;
       setInputs({
         ...inputs,
@@ -46,6 +54,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
       <StyledInput
         name={name}
         onChange={onChange}
+        onKeyUp={onEnterUp}
         spellCheck={false}
         value={value}
       />
