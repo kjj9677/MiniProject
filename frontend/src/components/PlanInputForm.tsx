@@ -54,7 +54,6 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
     <InputFormContainer>
       <Typography size="24">{question}</Typography>
       <StyledInput
-        autoFocus
         name={name}
         onChange={onChange}
         onKeyUp={onKeyUp}

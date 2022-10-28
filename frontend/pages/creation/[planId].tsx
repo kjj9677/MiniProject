@@ -5,8 +5,8 @@ import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
+import { BASE_API_URI } from "../../const";
 
-const BASE_URI = "http://211.197.23.229:3031";
 const SCHEDULE_TYPE = ["이동", "식사", "활동", "기타"];
 
 interface ScheduleInput {
@@ -35,7 +35,7 @@ const CreateSchedule: FC = () => {
   useEffect(() => {
     async function getPlanDetail(accessToken: string, planId: number) {
       const { data } = await axios.get(
-        `${BASE_URI}/plans/${planId}`,
+        `${BASE_API_URI}/plans/${planId}`,
         toAuthorizetionHeader(accessToken)
       );
       setPlanInfo(data);
@@ -142,7 +142,7 @@ const CreateSchedule: FC = () => {
     addedSchedulesRef.current.map(async (addedSchedule) => {
       await axios
         .post(
-          `${BASE_URI}/schedules`,
+          `${BASE_API_URI}/schedules`,
           addedSchedule,
           toAuthorizetionHeader(accessToken)
         )
@@ -184,20 +184,19 @@ const CreateSchedule: FC = () => {
           {planInfo.title}
         </div>
         <div>
-          {planInfo.schedules &&
-            planInfo.schedules
-              .sort((a, b) => a.startTime - b.startTime)
-              .map(({ id, title, startTime }) => {
-                return (
-                  <ScheduleInfo
-                    accessToken={accessToken}
-                    key={id}
-                    id={id}
-                    title={title}
-                    startTime={startTime}
-                  />
-                );
-              })}
+          {planInfo.schedules
+            .sort((a, b) => a.startTime - b.startTime)
+            .map(({ id, title, startTime }) => {
+              return (
+                <ScheduleInfo
+                  accessToken={accessToken}
+                  key={id}
+                  id={id}
+                  title={title}
+                  startTime={startTime}
+                />
+              );
+            })}
           {addedSchedulesRef.current.map(({ id, title, startTime }) => {
             return (
               <ScheduleInfo
@@ -502,7 +501,7 @@ const ModifyModal: FC<ModifyModalProps> = ({
   async function modifySchedule() {
     await axios
       .put(
-        `${BASE_URI}/schedules/${scheduleId}`,
+        `${BASE_API_URI}/schedules/${scheduleId}`,
         {
           duration: +duration,
           scheduleTypeId: +scheduleTypeId,
@@ -678,7 +677,7 @@ const DeleteModal: FC<DeleteModalProps> = ({
   async function deleteSchedule() {
     await axios
       .delete(
-        `${BASE_URI}/schedules/${scheduleId}`,
+        `${BASE_API_URI}/schedules/${scheduleId}`,
         toAuthorizetionHeader(accessToken)
       )
       .then(() => router.reload());

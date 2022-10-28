@@ -5,8 +5,7 @@ import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
 import Link from "next/link";
-
-const BASE_URI = "http://211.197.23.229:3031";
+import { BASE_API_URI } from "../../const";
 
 const PlanDetail: FC = () => {
   const router = useRouter();
@@ -19,7 +18,7 @@ const PlanDetail: FC = () => {
   useEffect(() => {
     async function getPlanDetail(accessToken: string, planId: number) {
       const { data } = await axios.get(
-        `${BASE_URI}/plans/${planId}`,
+        `${BASE_API_URI}/plans/${planId}`,
         toAuthorizetionHeader(accessToken)
       );
       setPlanInfo(data);
@@ -224,7 +223,7 @@ const FriendsList: FC<FriendsListProps> = ({
 
     await axios
       .post(
-        `${BASE_URI}/shares`,
+        `${BASE_API_URI}/shares`,
         {
           memberKakaoId: shareTarget,
           planId,

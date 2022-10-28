@@ -2,13 +2,11 @@ import { FC, useEffect } from "react";
 import axios from "axios";
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import useSWR from "swr";
-
-const BASIC_URI = "http://211.197.23.229:3031";
+import { BASE_API_URI, BASE_FRONTEND_URI } from "../../const";
 
 async function getToken(code: string | string[]) {
   const data = await axios
-    .post(`${BASIC_URI}/auth/login/kakao?code=${code}`)
+    .post(`${BASE_API_URI}/auth/login/kakao?code=${code}`)
     .then(({ data }) => data);
 
   localStorage.setItem("accessToken", data.accessToken);
@@ -26,7 +24,9 @@ const Kakao: FC = () => {
     }
 
     if (code) {
-      getToken(code).then(() => router.push("/login/kakao"));
+      getToken(code).then(() =>
+        router.push(`${BASE_FRONTEND_URI}/login/kakao`)
+      );
     }
   }, [router, code]);
 

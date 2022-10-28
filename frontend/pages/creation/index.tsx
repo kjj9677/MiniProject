@@ -5,8 +5,7 @@ import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import PlanInputForm from "../../src/components/PlanInputForm";
 import styled from "@emotion/styled";
-
-const BASE_URI = "http://211.197.23.229:3031";
+import { BASE_API_URI } from "../../const";
 
 export interface Plan {
   destination: string;
@@ -39,7 +38,7 @@ const CreatePlan: FC = () => {
 
     await axios
       .post(
-        `${BASE_URI}/plans`,
+        `${BASE_API_URI}/plans`,
         {
           destination,
           period: Number(period),

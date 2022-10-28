@@ -3,8 +3,7 @@ import Link from "next/link";
 import styled from "@emotion/styled";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
-
-const BASE_URI = "http://211.197.23.229:3031";
+import { BASE_API_URI } from "../../const";
 
 const Plans: FC = () => {
   const [accessToken, setAccessToken] = useState<string>();
@@ -14,7 +13,7 @@ const Plans: FC = () => {
   useEffect(() => {
     async function getPlanList(accessToken: string) {
       const { data } = await axios.get(
-        `${BASE_URI}/plans`,
+        `${BASE_API_URI}/plans`,
         toAuthorizetionHeader(accessToken)
       );
       setPlanList(data);
