@@ -35,7 +35,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
 }) => {
   function onChange(e: any) {
     const { value, name } = e.target;
-    const newValue = isNumber ? +value.replace(/[^0-9]/g, "") : value;
+    const newValue = isNumber ? value.replace(/[^0-9]/g, "") : value;
     setInputs({
       ...inputs,
       [name]: newValue,
