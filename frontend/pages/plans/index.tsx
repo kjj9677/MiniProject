@@ -2,8 +2,10 @@ import { FC, useEffect, useState } from "react";
 import Link from "next/link";
 import styled from "@emotion/styled";
 import axios from "axios";
-import { toAuthorizetionHeader } from "../../utils";
+import { getPeriodText, toAuthorizetionHeader } from "../../utils";
 import { BASE_API_URI } from "../../const";
+import Button from "../../src/components/Button";
+import PlanInfo from "../../src/components/PlanInfo";
 
 const Plans: FC = () => {
   const [accessToken, setAccessToken] = useState<string>();
@@ -23,8 +25,11 @@ const Plans: FC = () => {
     if (accessToken) {
       getPlanList(accessToken);
     }
-    setIsLoading(false);
-  }, [accessToken]);
+    isLoading && setIsLoading(false);
+  }, [accessToken, isLoading]);
+  if (isLoading) {
+    return <div />;
+  }
   return (
     <div
       style={{
@@ -37,19 +42,7 @@ const Plans: FC = () => {
         width: "100vw",
       }}
     >
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "darkgray",
-          color: "white",
-          display: "flex",
-          height: 70,
-          justifyContent: "center",
-          width: 250,
-        }}
-      >
-        여행계획표 목록
-      </div>
+      <Button color="white">여행 계획표 목록</Button>
       {planList &&
         planList.map(({ id, destination, period, title }) => (
           <PlanInfo
@@ -63,7 +56,7 @@ const Plans: FC = () => {
 
       <Link href="/creation">
         <a>
-          <Button>+ 새 계획표 만들기</Button>
+          <Button color="white">+ 새 계획표 만들기</Button>
         </a>
       </Link>
     </div>
@@ -71,91 +64,3 @@ const Plans: FC = () => {
 };
 
 export default Plans;
-
-interface PlanInfoProps {
-  destination: string;
-  id: number;
-  period: number;
-  title: string;
-}
-
-const PlanInfo: FC<PlanInfoProps> = ({ destination, id, period, title }) => {
-  return (
-    <Link href={`/plans/${id}`}>
-      <a href={`/plans/${id}`}>
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "#c9d3dd",
-            color: "black",
-            display: "flex",
-            height: 150,
-            justifyContent: "center",
-            position: "relative",
-            width: 450,
-          }}
-        >
-          <p>{title}</p>
-          <div
-            style={{
-              alignItems: "center",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              position: "absolute",
-              right: 10,
-              rowGap: 10,
-              top: 10,
-            }}
-          >
-            <div
-              style={{
-                alignItems: "center",
-                backgroundColor: "gray",
-                color: "white",
-                display: "flex",
-                justifyContent: "center",
-                height: 50,
-                width: 100,
-              }}
-            >
-              {destination}
-            </div>
-            <div
-              style={{
-                alignItems: "center",
-                backgroundColor: "gray",
-                color: "white",
-                display: "flex",
-                justifyContent: "center",
-                height: 50,
-                width: 100,
-              }}
-            >
-              {getPeriodText(period)}
-            </div>
-          </div>
-        </div>
-      </a>
-    </Link>
-  );
-};
-
-const Button = styled.button(() => ({
-  all: "unset",
-  alignItems: "center",
-  backgroundColor: "darkgray",
-  color: "white",
-  display: "flex",
-  justifyContent: "center",
-  height: 70,
-  width: 250,
-}));
-
-function getPeriodText(period: number): string {
-  if (period === 1) {
-    return "당일치기";
-  }
-
-  return `${period - 1}박${period}일`;
-}
