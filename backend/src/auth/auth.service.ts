@@ -26,7 +26,6 @@ const CONTENT_TYPE = 'application/x-www-form-urlencoded;charset=utf-8';
 export class AuthService {
   constructor(private jwtService: JwtService) {}
   async kakaoLogin(code: string): Promise<{ accessToken: string }> {
-    console.log(process.env.NODE_ENV);
     const body = {
       grant_type: GRANT_TYPE,
       client_id: RESTAPI_KEY,
