@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Lagood Co. All rights reserved.
 
 import styled from "@emotion/styled";
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useRef } from "react";
 import { isEmpty } from "lodash";
 import { Plan } from "../../pages/creation";
 import Typography from "./Typography";
@@ -10,6 +10,7 @@ export interface PlanInputFormProps {
   createPlan: () => void;
   inputs: Plan;
   isFirst: boolean;
+  isFocused: boolean;
   isLast: boolean;
   isNumber: boolean;
   name: string;
@@ -24,6 +25,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   createPlan,
   inputs,
   isFirst,
+  isFocused,
   isLast,
   isNumber,
   name,
@@ -33,6 +35,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   unit,
   value,
 }) => {
+  const inputRef = useRef<HTMLInputElement>();
   function onChange(e: any) {
     const { value, name } = e.target;
     const newValue = isNumber ? value.replace(/[^0-9]/g, "") : value;
@@ -50,6 +53,12 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
     }
   }
 
+  useEffect(() => {
+    if (isFocused) {
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
+
   return (
     <InputFormContainer>
       <Typography size="24">{question}</Typography>
@@ -57,6 +66,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
         name={name}
         onChange={onChange}
         onKeyUp={onKeyUp}
+        ref={inputRef}
         spellCheck={false}
         value={value}
       />

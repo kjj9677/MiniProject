@@ -9,7 +9,7 @@ import { BASE_API_URI } from "../../const";
 
 export interface Plan {
   destination: string;
-  period: number;
+  period: string;
   title: string;
 }
 
@@ -17,9 +17,9 @@ const CreatePlan: FC = () => {
   const router = useRouter();
   const [stage, setStage] = useState<number>(1);
   const [inputs, setInputs] = useState<Plan>({
-    destination: undefined,
-    period: undefined,
-    title: undefined,
+    destination: "",
+    period: "",
+    title: "",
   });
 
   const { destination, title, period } = inputs;
@@ -92,6 +92,7 @@ const CreatePlan: FC = () => {
                 createPlan={createPlan}
                 inputs={inputs}
                 isFirst={idx === 0}
+                isFocused={idx === stage - 1}
                 isLast={idx === PLAN_INPUT_VARIABLES.length - 1}
                 isNumber={isNumber}
                 key={name}
