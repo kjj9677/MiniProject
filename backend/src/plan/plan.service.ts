@@ -9,6 +9,7 @@ import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
 import { isEmpty } from 'lodash';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
+import { Schedule } from 'src/entities/schedule.entity';
 
 @Injectable()
 export class PlanService {
@@ -65,6 +66,9 @@ export class PlanService {
     } else if (foundPlan.createdBy.id !== user.id) {
       throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
     }
+
+    await getRepository(Schedule).delete({ plan: { id } });
+    await getRepository(Share).delete({ plan: { id } });
 
     await getRepository(Plan).softDelete(id);
   }
