@@ -275,7 +275,7 @@ export default CreateSchedule;
 const CreateScheduleContainer = styled.div({
   alignItems: "center",
   display: "flex",
-  columnGap: 400,
+  columnGap: 300,
   height: "100vh",
   justifyContent: "center",
   width: "100vw",
@@ -479,85 +479,3 @@ interface ModifyModalProps {
 //     </Modal>
 //   );
 // };
-
-interface DeleteModalProps {
-  accessToken: string;
-  isOpen: boolean;
-  onClose: () => void;
-  scheduleId: number;
-}
-
-const DeleteModal: FC<DeleteModalProps> = ({
-  accessToken,
-  isOpen,
-  onClose,
-  scheduleId,
-}) => {
-  const router = useRouter();
-  async function deleteSchedule() {
-    await axios
-      .delete(
-        `${BASE_API_URI}/schedules/${scheduleId}`,
-        toAuthorizetionHeader(accessToken)
-      )
-      .then(() => router.reload());
-  }
-
-  return (
-    <Modal
-      ariaHideApp={false}
-      isOpen={isOpen}
-      onRequestClose={onClose}
-      style={{
-        content: { all: "unset" },
-        overlay: { backgroundColor: "rgba(0, 0, 0, 0.25)", zIndex: 5 },
-      }}
-    >
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "#c9d3dd",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          rowGap: 20,
-          position: "absolute",
-          height: 130,
-          width: 300,
-          left: "42%",
-          top: "30%",
-        }}
-      >
-        <p>해당 일정을 삭제하시겠습니까?</p>
-        <div style={{ display: "flex", columnGap: 30 }}>
-          <div
-            style={{
-              cursor: "pointer",
-              display: "grid",
-              placeItems: "center",
-              height: 30,
-              width: 70,
-              backgroundColor: "#ebebeb",
-            }}
-            onClick={deleteSchedule}
-          >
-            확인
-          </div>
-          <div
-            style={{
-              cursor: "pointer",
-              display: "grid",
-              placeItems: "center",
-              height: 30,
-              width: 70,
-              backgroundColor: "#ebebeb",
-            }}
-            onClick={onClose}
-          >
-            취소
-          </div>
-        </div>
-      </div>
-    </Modal>
-  );
-};

@@ -13,6 +13,7 @@ import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
 import Typography from "../../src/components/Typography";
 import ScheduleInput from "../../src/components/ScheduleInput";
+import DeleteModal from "./DeleteModal";
 
 interface ScheduleInfoProps {
   accessToken: string;
@@ -41,15 +42,19 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
         <TitleContainer>
           <Typography color="white">{title}</Typography>
         </TitleContainer>
-        <EditButton color="white">수정</EditButton>
-        <EditButton color="white">삭제</EditButton>
+        <EditButton color="white" onClick={() => setIsModifyModalOpen(true)}>
+          수정
+        </EditButton>
+        <EditButton color="white" onClick={() => setIsDeleteModalOpen(true)}>
+          삭제
+        </EditButton>
       </StyledDiv>
-      {/* <DeleteModal
+      <DeleteModal
         scheduleId={id}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => setIsDeleteModalOpen(false)}
         accessToken={accessToken}
-        isOpen={isModalOpen}
-      /> */}
+        isOpen={isDeleteModalOpen}
+      />
       {/* <ModifyModal
         scheduleId={id}
         onClose={() => setIsModifyModalOpen(false)}
