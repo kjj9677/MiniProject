@@ -84,7 +84,7 @@ const CreatePlan: FC = () => {
       <PlanInputsContainer>
         <div style={{ display: "flex", marginLeft: (stage - 1) * -400 }}>
           {PLAN_INPUT_VARIABLES.map(
-            ({ isNumber, name, question, unit, value }, idx) => (
+            ({ isNumber, name, question, value }, idx) => (
               <PlanInput
                 createPlan={createPlan}
                 inputs={inputs}
@@ -97,7 +97,6 @@ const CreatePlan: FC = () => {
                 question={question}
                 setInputs={setInputs}
                 setStage={setStage}
-                unit={unit}
                 value={value}
               />
             )

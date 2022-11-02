@@ -13,6 +13,7 @@ import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
 import Typography from "../../src/components/Typography";
 import ScheduleInput from "../../src/components/ScheduleInput";
+import ScheduleInfo from "../../src/components/ScheduleInfo";
 
 interface ScheduleInput {
   duration: string;
@@ -96,7 +97,7 @@ const CreateSchedule: FC = () => {
       value: scheduleType,
     },
     {
-      inputTitle: "내용",
+      inputTitle: "제목",
       isNumber: false,
       isSelectType: false,
       isStartTime: false,
@@ -279,124 +280,6 @@ const CreateScheduleContainer = styled.div({
   justifyContent: "center",
   width: "100vw",
 });
-
-interface ScheduleInfoProps {
-  accessToken: string;
-  id: number;
-  startTime: string;
-  title: string;
-}
-
-const ScheduleInfo: FC<ScheduleInfoProps> = ({
-  accessToken,
-  id,
-  startTime,
-  title,
-}) => {
-  const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
-  return (
-    <div
-      style={{
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "#ebebeb",
-          color: "black",
-          display: "flex",
-          flexDirection: "column",
-          height: 30,
-          justifyContent: "center",
-          position: "relative",
-          width: 100,
-        }}
-      >
-        <p>{startTime}</p>
-      </div>
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "darkgray",
-          height: 55,
-          width: 3,
-        }}
-      />
-      <div
-        style={{
-          alignItems: "center",
-          bottom: 10,
-          columnGap: 15,
-          left: 60,
-          display: "flex",
-          justifyContent: "center",
-          position: "absolute",
-        }}
-      >
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "darkgray",
-            color: "white",
-            display: "flex",
-            height: 30,
-            justifyContent: "center",
-            width: 200,
-          }}
-        >
-          {title}
-        </div>
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "#ebebeb",
-            color: "black",
-            display: "flex",
-            height: 30,
-            justifyContent: "center",
-            width: 100,
-          }}
-          onClick={() => setIsModifyModalOpen(true)}
-        >
-          수정
-        </div>
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "#ebebeb",
-            color: "black",
-            display: "flex",
-            height: 30,
-            justifyContent: "center",
-            width: 100,
-          }}
-          onClick={() => setIsModalOpen(true)}
-        >
-          삭제
-        </div>
-      </div>
-      <DeleteModal
-        scheduleId={id}
-        onClose={() => setIsModalOpen(false)}
-        accessToken={accessToken}
-        isOpen={isModalOpen}
-      />
-      {/* <ModifyModal
-        scheduleId={id}
-        onClose={() => setIsModifyModalOpen(false)}
-        accessToken={accessToken}
-        isOpen={isModifyModalOpen}
-      /> */}
-    </div>
-  );
-};
 
 function getStartTime(startTime: number) {
   return `${Math.floor(startTime / 60)}:${
