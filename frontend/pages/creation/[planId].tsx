@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import { isEmpty } from "lodash";
 import styled from "@emotion/styled";
 import axios from "axios";
-import { toAuthorizetionHeader } from "../../utils";
+import { getScheduleTypeIdByString, toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
 import { BASE_API_URI } from "../../const";
@@ -18,7 +18,7 @@ interface ScheduleInput {
 }
 
 const CreateSchedule: FC = () => {
-  const addedSchedulesRef = useRef([]);
+  const [addedSchedules, setAddedSchedules] = useState([]);
   const router = useRouter();
   const planId = +router.query.planId;
   const [inputs, setInputs] = useState<ScheduleInput>({
@@ -78,7 +78,7 @@ const CreateSchedule: FC = () => {
       });
   };
 
-  const CREATE_SCHEDULE_TEXT = [
+  const CREATE_SCHEDULE_VARIABLES = [
     {
       inputTitle: "종류",
       isNumber: false,
@@ -131,32 +131,29 @@ const CreateSchedule: FC = () => {
       alert("빈 항목이 있습니다!");
       return false;
     }
-
-    if (Number(duration) === 0) {
-      alert("유효하지 않은 기간입니다.");
-      return false;
-    }
-
     return true;
   }
 
-  async function addSchedule() {
+  function addSchedule() {
     if (!checkAreInputsValid()) {
       return null;
     }
 
-    addedSchedulesRef.current.push({
-      title,
-      duration: +duration,
-      scheduleTypeId: 1,
-      startTime: +startTime,
-      planId,
-    });
+    setAddedSchedules((prev) => [
+      ...prev,
+      {
+        title,
+        duration: +duration,
+        scheduleTypeId: getScheduleTypeIdByString(scheduleType),
+        startTime: +startTime.hour * 60 + +startTime.minute,
+        planId,
+      },
+    ]);
     onReset();
   }
 
   function createSchedule() {
-    addedSchedulesRef.current.map(async (addedSchedule) => {
+    addedSchedules.map(async (addedSchedule) => {
       await axios
         .post(
           `${BASE_API_URI}/schedules`,
@@ -189,21 +186,19 @@ const CreateSchedule: FC = () => {
                   key={id}
                   id={id}
                   title={title}
-                  startTime={startTime}
+                  startTime={getStartTime(startTime)}
                 />
               );
             })}
-          {addedSchedulesRef.current.map(({ id, title, startTime }) => {
-            return (
-              <ScheduleInfo
-                accessToken={accessToken}
-                key={id}
-                id={id}
-                title={title}
-                startTime={startTime}
-              />
-            );
-          })}
+          {addedSchedules.map(({ id, title, startTime }: any) => (
+            <ScheduleInfo
+              accessToken={accessToken}
+              key={id}
+              id={id}
+              title={title}
+              startTime={getStartTime(startTime)}
+            />
+          ))}
         </div>
       </div>
       <div
@@ -227,7 +222,7 @@ const CreateSchedule: FC = () => {
             rowGap: 24,
           }}
         >
-          {CREATE_SCHEDULE_TEXT.map(
+          {CREATE_SCHEDULE_VARIABLES.map(
             (
               {
                 isNumber,
@@ -279,7 +274,7 @@ const CreateScheduleContainer = styled.div({
 interface ScheduleInfoProps {
   accessToken: string;
   id: number;
-  startTime: number;
+  startTime: string;
   title: string;
 }
 
@@ -315,7 +310,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
           width: 100,
         }}
       >
-        <p>{getStartTime(startTime)}</p>
+        <p>{startTime}</p>
       </div>
       <div
         style={{
@@ -384,12 +379,12 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
         accessToken={accessToken}
         isOpen={isModalOpen}
       />
-      <ModifyModal
+      {/* <ModifyModal
         scheduleId={id}
         onClose={() => setIsModifyModalOpen(false)}
         accessToken={accessToken}
         isOpen={isModifyModalOpen}
-      />
+      /> */}
     </div>
   );
 };
@@ -398,21 +393,6 @@ function getStartTime(startTime: number) {
   return `${Math.floor(startTime / 60)}:${
     startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
   }`;
-}
-
-function getScheduleTypeId(value: string) {
-  if (value === "이동") {
-    return 1;
-  }
-
-  if (value === "식사") {
-    return 2;
-  }
-
-  if (value === "활동") {
-    return 3;
-  }
-  return 4;
 }
 
 interface ModifyModalProps {

@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { HOURS, MINUTES } from "../../const";
 import Typography from "../../src/components/Typography";
 
-const SCHEDULE_TYPE = ["이동", "식사", "활동", "기타"];
+const SCHEDULE_TYPE = ["이동", "식사", "활동", "휴식", "기타"];
 
 interface ScheduleInputProps {
   inputTitle: string;
