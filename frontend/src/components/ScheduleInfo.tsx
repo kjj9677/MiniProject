@@ -14,17 +14,22 @@ import Button from "../../src/components/Button";
 import Typography from "../../src/components/Typography";
 import ScheduleInput from "../../src/components/ScheduleInput";
 import DeleteModal from "./DeleteModal";
+import ModifyModal from "./ModifyModal";
 
 interface ScheduleInfoProps {
   accessToken: string;
+  duration: number;
   id: number;
-  startTime: string;
+  scheduleTypeId: number;
+  startTime: number;
   title: string;
 }
 
 const ScheduleInfo: FC<ScheduleInfoProps> = ({
   accessToken,
+  duration,
   id,
+  scheduleTypeId,
   startTime,
   title,
 }) => {
@@ -35,7 +40,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
   return (
     <ScheduleInfoContainer>
       <StartTimeContainer>
-        <Typography>{startTime}</Typography>
+        <Typography>{getStartTime(startTime)}</Typography>
       </StartTimeContainer>
       <Slur />
       <StyledDiv>
@@ -55,12 +60,16 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
         accessToken={accessToken}
         isOpen={isDeleteModalOpen}
       />
-      {/* <ModifyModal
-        scheduleId={id}
-        onClose={() => setIsModifyModalOpen(false)}
+      <ModifyModal
         accessToken={accessToken}
         isOpen={isModifyModalOpen}
-      /> */}
+        onClose={() => setIsModifyModalOpen(false)}
+        prevDuration={duration}
+        prevScheduleTypeId={scheduleTypeId}
+        prevStartTime={startTime}
+        prevTitle={title}
+        scheduleId={id}
+      />
     </ScheduleInfoContainer>
   );
 };
@@ -120,3 +129,9 @@ const EditButton = styled(Button)({
   height: 30,
   width: 50,
 });
+
+function getStartTime(startTime: number) {
+  return `${Math.floor(startTime / 60)}:${
+    startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
+  }`;
+}

@@ -189,26 +189,32 @@ const CreateSchedule: FC = () => {
         <div>
           {planInfo.schedules
             .sort((a, b) => a.startTime - b.startTime)
-            .map(({ id, title, startTime }) => {
+            .map(({ duration, id, scheduleTypeId, startTime, title }) => {
               return (
                 <ScheduleInfo
                   accessToken={accessToken}
-                  key={id}
+                  duration={duration}
                   id={id}
+                  key={id}
+                  scheduleTypeId={scheduleTypeId}
+                  startTime={startTime}
                   title={title}
-                  startTime={getStartTime(startTime)}
                 />
               );
             })}
-          {addedSchedules.map(({ id, title, startTime }: any) => (
-            <ScheduleInfo
-              accessToken={accessToken}
-              key={id}
-              id={id}
-              title={title}
-              startTime={getStartTime(startTime)}
-            />
-          ))}
+          {addedSchedules.map(
+            ({ duration, id, title, scheduleTypeId, startTime }: any) => (
+              <ScheduleInfo
+                accessToken={accessToken}
+                duration={duration}
+                key={id}
+                id={id}
+                scheduleTypeId={scheduleTypeId}
+                startTime={startTime}
+                title={title}
+              />
+            )
+          )}
         </div>
       </div>
       <div
@@ -280,202 +286,3 @@ const CreateScheduleContainer = styled.div({
   justifyContent: "center",
   width: "100vw",
 });
-
-function getStartTime(startTime: number) {
-  return `${Math.floor(startTime / 60)}:${
-    startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
-  }`;
-}
-
-interface ModifyModalProps {
-  accessToken: string;
-  isOpen: boolean;
-  onClose: () => void;
-  scheduleId: number;
-  // startTime: number;
-  // title: string;
-  // duration: number;
-  // scheduleTypeId: number;
-}
-
-// const ModifyModal: FC<ModifyModalProps> = ({
-//   accessToken,
-//   isOpen,
-//   onClose,
-//   scheduleId,
-//   // startTime,
-//   // title,
-//   // duration,
-//   // scheduleTypeId,
-// }) => {
-//   const [startTime, setStartTime] = useState<number>();
-//   const [inputs, setInputs] = useState<ScheduleInput>({
-//     duration: undefined,
-//     scheduleType: "이동",
-//     title: undefined,
-//   });
-
-//   const { duration, scheduleType, title } = inputs;
-
-//   const router = useRouter();
-//   async function modifySchedule() {
-//     await axios
-//       .put(
-//         `${BASE_API_URI}/schedules/${scheduleId}`,
-//         {
-//           duration: +duration,
-//           scheduleTypeId: 1,
-//           title,
-//           startTime: +startTime,
-//         },
-//         toAuthorizetionHeader(accessToken)
-//       )
-//       .then(() => router.reload());
-//   }
-
-//   const onChange = (e: any) => {
-//     const { value, name } = e.target;
-//     setInputs({
-//       ...inputs,
-//       [name]: value,
-//     });
-//   };
-
-//   // const onSelectChange = (e: any) => {
-//   //   const { value } = e.target;
-//   //   setInputs({
-//   //     ...inputs,
-//   //     scheduleTypeId: getScheduleTypeId(value),
-//   //   });
-//   // };
-
-//   // const onStartChange = (e: any) => {
-//   //   const { value } = e.target;
-//   //   setStartTime(+value);
-//   // };
-
-//   const CREATE_SCHEDULE_TEXT = [
-//     {
-//       isNumber: false,
-//       inputTitle: "내용",
-//       name: "title",
-//       placeholder: "ex) 강릉버스터미널로 이동",
-//       value: title,
-//     },
-
-//     {
-//       isNumber: true,
-//       inputTitle: "소요 시간(분)",
-//       name: "duration",
-//       placeholder: "ex) 150",
-//       value: duration,
-//     },
-//   ];
-
-//   return (
-//     <Modal
-//       ariaHideApp={false}
-//       isOpen={isOpen}
-//       onRequestClose={onClose}
-//       style={{
-//         content: { all: "unset" },
-//         overlay: { backgroundColor: "rgba(0, 0, 0, 0.25)", zIndex: 5 },
-//       }}
-//     >
-//       {/* <div
-//         style={{
-//           alignItems: "center",
-//           backgroundColor: "white",
-//           display: "flex",
-//           flexDirection: "column",
-//           justifyContent: "center",
-//           rowGap: 20,
-//           position: "absolute",
-//           height: 730,
-//           width: 400,
-//           left: "40%",
-//           top: "20%",
-//         }}
-//       >
-//         <div
-//           style={{
-//             columnGap: 12,
-//             display: "grid",
-//             gridAutoFlow: "column",
-//             height: 60,
-//             placeItems: "center",
-//           }}
-//         >
-//           <p>종류</p>
-//           <select
-//             onChange={onSelectChange}
-//             value={SCHEDULE_TYPE[scheduleTypeId - 1]}
-//           >
-//             {SCHEDULE_TYPE.map((e) => {
-//               return <option key={e}>{e}</option>;
-//             })}
-//           </select>
-//         </div>
-//         {CREATE_SCHEDULE_TEXT.map(
-//           ({ isNumber, inputTitle, name, placeholder, value }, idx) => (
-//             <Input
-//               key={idx}
-//               name={name}
-//               onChange={onChange}
-//               isNumber={isNumber}
-//               inputTitle={inputTitle}
-//               placeholder={placeholder}
-//               value={value}
-//             />
-//           )
-//         )}
-//         <div
-//           style={{
-//             columnGap: 12,
-//             display: "grid",
-//             gridAutoFlow: "column",
-//             height: 60,
-//             placeItems: "center",
-//           }}
-//         >
-//           <p>시작 시간(분)</p>
-//           <input
-//             name="startTime"
-//             onChange={onStartChange}
-//             placeholder="ex) 600"
-//             type="number"
-//             value={startTime}
-//           />
-//         </div>
-//         <div style={{ display: "flex", columnGap: 30 }}>
-//           <div
-//             style={{
-//               cursor: "pointer",
-//               display: "grid",
-//               placeItems: "center",
-//               height: 30,
-//               width: 70,
-//               backgroundColor: "#ebebeb",
-//             }}
-//             onClick={modifySchedule}
-//           >
-//             확인
-//           </div>
-//           <div
-//             style={{
-//               cursor: "pointer",
-//               display: "grid",
-//               placeItems: "center",
-//               height: 30,
-//               width: 70,
-//               backgroundColor: "#ebebeb",
-//             }}
-//             onClick={onClose}
-//           >
-//             취소
-//           </div>
-//         </div>
-//       </div> */}
-//     </Modal>
-//   );
-// };
