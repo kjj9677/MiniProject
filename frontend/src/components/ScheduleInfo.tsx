@@ -1,18 +1,7 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { isEmpty } from "lodash";
+import { FC, useState } from "react";
 import styled from "@emotion/styled";
-import axios from "axios";
-import {
-  getFormedStartTime,
-  getScheduleTypeIdByString,
-  toAuthorizetionHeader,
-} from "../../utils";
-import { useRouter } from "next/router";
-import Modal from "react-modal";
-import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
 import Typography from "../../src/components/Typography";
-import ScheduleInput from "../../src/components/ScheduleInput";
 import DeleteModal from "./DeleteModal";
 import ModifyModal from "./ModifyModal";
 
@@ -20,6 +9,7 @@ interface ScheduleInfoProps {
   accessToken: string;
   duration: number;
   id: number;
+  isEditable?: boolean;
   scheduleTypeId: number;
   startTime: number;
   title: string;
@@ -29,11 +19,11 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
   accessToken,
   duration,
   id,
+  isEditable = true,
   scheduleTypeId,
   startTime,
   title,
 }) => {
-  const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
@@ -47,29 +37,39 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
         <TitleContainer>
           <Typography color="white">{title}</Typography>
         </TitleContainer>
-        <EditButton color="white" onClick={() => setIsModifyModalOpen(true)}>
-          수정
-        </EditButton>
-        <EditButton color="white" onClick={() => setIsDeleteModalOpen(true)}>
-          삭제
-        </EditButton>
+        {isEditable && (
+          <EditButtons>
+            <EditButton
+              color="white"
+              onClick={() => setIsModifyModalOpen(true)}
+            >
+              수정
+            </EditButton>
+            <EditButton
+              color="white"
+              onClick={() => setIsDeleteModalOpen(true)}
+            >
+              삭제
+            </EditButton>
+            <DeleteModal
+              scheduleId={id}
+              onClose={() => setIsDeleteModalOpen(false)}
+              accessToken={accessToken}
+              isOpen={isDeleteModalOpen}
+            />
+            <ModifyModal
+              accessToken={accessToken}
+              isOpen={isModifyModalOpen}
+              onClose={() => setIsModifyModalOpen(false)}
+              prevDuration={duration}
+              prevScheduleTypeId={scheduleTypeId}
+              prevStartTime={startTime}
+              prevTitle={title}
+              scheduleId={id}
+            />
+          </EditButtons>
+        )}
       </StyledDiv>
-      <DeleteModal
-        scheduleId={id}
-        onClose={() => setIsDeleteModalOpen(false)}
-        accessToken={accessToken}
-        isOpen={isDeleteModalOpen}
-      />
-      <ModifyModal
-        accessToken={accessToken}
-        isOpen={isModifyModalOpen}
-        onClose={() => setIsModifyModalOpen(false)}
-        prevDuration={duration}
-        prevScheduleTypeId={scheduleTypeId}
-        prevStartTime={startTime}
-        prevTitle={title}
-        scheduleId={id}
-      />
     </ScheduleInfoContainer>
   );
 };
@@ -122,6 +122,13 @@ const TitleContainer = styled.div({
   height: 35,
   justifyContent: "center",
   width: 200,
+});
+
+const EditButtons = styled.div({
+  alignItems: "center",
+  columnGap: 8,
+  display: "flex",
+  justifyContent: "center",
 });
 
 const EditButton = styled(Button)({

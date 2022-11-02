@@ -7,6 +7,7 @@ import Modal from "react-modal";
 import Link from "next/link";
 import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
+import ScheduleInfo from "../../src/components/ScheduleInfo";
 
 const PlanDetail: FC = () => {
   const router = useRouter();
@@ -37,35 +38,29 @@ const PlanDetail: FC = () => {
   }
 
   return (
-    <div
-      style={{
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        justifyContent: "center",
-        rowGap: 80,
-        width: "100vw",
-      }}
-    >
+    <PlanDetailContainer>
       <div style={{ columnGap: 130, display: "flex" }}>
         <Button color="white">{planInfo.title}</Button>
         <Link href={`/creation/${planInfo.id}`}>
           <a>
-            <Button color="white"> 일정 수정하기</Button>
+            <Button color="white">일정 수정하기</Button>
           </a>
         </Link>
       </div>
       <div>
         {planInfo.schedules
           .sort((a, b) => a.startTime - b.startTime)
-          .map(({ id, title, startTime }) => {
+          .map(({ duration, id, title, scheduleTypeId, startTime }) => {
             return (
               <ScheduleInfo
-                key={id}
+                accessToken={accessToken}
+                duration={duration}
                 id={id}
-                title={title}
+                isEditable={false}
+                key={id}
+                scheduleTypeId={scheduleTypeId}
                 startTime={startTime}
+                title={title}
               />
             );
           })}
@@ -79,87 +74,21 @@ const PlanDetail: FC = () => {
         onClose={() => setIsFriendsListOpen(false)}
         planId={planId}
       />
-    </div>
+    </PlanDetailContainer>
   );
 };
 
 export default PlanDetail;
 
-interface ScheduleInfoProps {
-  id: number;
-  startTime: number;
-  title: string;
-}
-
-const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
-  return (
-    <div
-      style={{
-        alignItems: "center",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "#ebebeb",
-          color: "black",
-          display: "flex",
-          flexDirection: "column",
-          height: 30,
-          justifyContent: "center",
-          position: "relative",
-          width: 100,
-        }}
-      >
-        <p>{getStartTime(startTime)}</p>
-      </div>
-      <div
-        style={{
-          alignItems: "center",
-          backgroundColor: "darkgray",
-          height: 55,
-          width: 3,
-        }}
-      />
-      <div
-        style={{
-          alignItems: "center",
-          bottom: 10,
-          columnGap: 15,
-          left: 60,
-          display: "flex",
-          justifyContent: "center",
-          position: "absolute",
-        }}
-      >
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "darkgray",
-            color: "white",
-            display: "flex",
-            height: 30,
-            justifyContent: "center",
-            width: 200,
-          }}
-        >
-          {title}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-function getStartTime(startTime: number) {
-  return `${Math.floor(startTime / 60)}:${
-    startTime % 60 < 10 ? `0${startTime % 60}` : startTime % 60
-  }`;
-}
-
+const PlanDetailContainer = styled.div({
+  alignItems: "center",
+  display: "flex",
+  flexDirection: "column",
+  height: "100vh",
+  justifyContent: "center",
+  rowGap: 80,
+  width: "100vw",
+});
 interface FriendsListProps {
   accessToken: string;
   isOpen: boolean;
