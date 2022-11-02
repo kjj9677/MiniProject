@@ -2,7 +2,11 @@ import { FC, useEffect, useRef, useState } from "react";
 import { isEmpty } from "lodash";
 import styled from "@emotion/styled";
 import axios from "axios";
-import { getScheduleTypeIdByString, toAuthorizetionHeader } from "../../utils";
+import {
+  getFormedStartTime,
+  getScheduleTypeIdByString,
+  toAuthorizetionHeader,
+} from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
 import { BASE_API_URI } from "../../const";
@@ -41,15 +45,18 @@ const CreateSchedule: FC = () => {
         toAuthorizetionHeader(accessToken)
       );
       setPlanInfo(data);
-      // if (data.schedules.length > 0) {
-      //   const newSchedules = data.schedules.sort(
-      //     (a, b) => a.startTime - b.startTime
-      //   );
-      //   setStartTime(
-      //     +newSchedules[newSchedules.length - 1].startTime +
-      //       +newSchedules[newSchedules.length - 1].duration
-      //   );
-      // }
+      if (data.schedules.length > 0) {
+        const sortedSchedules = data.schedules.sort(
+          (a, b) => a.startTime - b.startTime
+        );
+        const newStartTime =
+          +sortedSchedules[sortedSchedules.length - 1].startTime +
+          +sortedSchedules[sortedSchedules.length - 1].duration;
+        setInputs({
+          ...inputs,
+          startTime: getFormedStartTime(newStartTime),
+        });
+      }
     }
 
     setAccessToken(localStorage.getItem("accessToken"));
@@ -121,7 +128,9 @@ const CreateSchedule: FC = () => {
     setInputs({
       duration: "",
       scheduleType: "이동",
-      startTime: { hour: "00", minute: "00" },
+      startTime: getFormedStartTime(
+        +startTime.hour * 60 + +startTime.minute + +duration
+      ),
       title: "",
     });
   }
@@ -265,7 +274,7 @@ export default CreateSchedule;
 const CreateScheduleContainer = styled.div({
   alignItems: "center",
   display: "flex",
-  columnGap: 500,
+  columnGap: 400,
   height: "100vh",
   justifyContent: "center",
   width: "100vw",

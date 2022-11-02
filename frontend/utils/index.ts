@@ -28,3 +28,16 @@ export function getScheduleTypeIdByString(value: string) {
   }
   return 5;
 }
+
+export function getFormedStartTime(startTime: number) {
+  const hour = getFormedTime(Math.floor(startTime / 60));
+  const minute = getFormedTime(startTime % 60);
+  return { hour, minute };
+}
+
+function getFormedTime(value: number) {
+  if (value >= 10) {
+    return `${value}`;
+  }
+  return `0${value}`;
+}
