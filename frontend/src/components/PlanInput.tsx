@@ -6,7 +6,7 @@ import { isEmpty } from "lodash";
 import { Plan } from "../../pages/creation";
 import Typography from "./Typography";
 
-export interface PlanInputFormProps {
+export interface PlanInputProps {
   createPlan: () => void;
   inputs: Plan;
   isFirst: boolean;
@@ -17,11 +17,10 @@ export interface PlanInputFormProps {
   question: string;
   setInputs: Dispatch<SetStateAction<Plan>>;
   setStage: Dispatch<SetStateAction<number>>;
-  unit: string;
   value: string | number;
 }
 
-const PlanInputForm: FC<PlanInputFormProps> = ({
+const PlanInput: FC<PlanInputProps> = ({
   createPlan,
   inputs,
   isFirst,
@@ -32,7 +31,6 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   question,
   setInputs,
   setStage,
-  unit,
   value,
 }) => {
   const inputRef = useRef<HTMLInputElement>();
@@ -60,7 +58,7 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
   }, [isFocused]);
 
   return (
-    <InputFormContainer>
+    <InputContainer>
       <Typography size="24">{question}</Typography>
       <StyledInput
         name={name}
@@ -70,22 +68,22 @@ const PlanInputForm: FC<PlanInputFormProps> = ({
         spellCheck={false}
         value={value}
       />
-      <InputFormButtons
+      <InputButtons
         createPlan={createPlan}
         isFirst={isFirst}
         isLast={isLast}
         setStage={setStage}
         value={value}
       />
-    </InputFormContainer>
+    </InputContainer>
   );
 };
 
-export default PlanInputForm;
+export default PlanInput;
 
-const InputFormButtons: FC<
+const InputButtons: FC<
   Pick<
-    PlanInputFormProps,
+    PlanInputProps,
     "createPlan" | "isFirst" | "isLast" | "setStage" | "value"
   >
 > = ({ createPlan, isFirst, isLast, setStage, value }) => {
@@ -129,7 +127,7 @@ const ButtonsContainer = styled.div({
   rowGap: 10,
 });
 
-const InputFormContainer = styled.div({
+const InputContainer = styled.div({
   alignItems: "center",
   backgroundColor: "white",
   borderRadius: 5,

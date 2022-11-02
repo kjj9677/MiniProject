@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import Modal from "react-modal";
 import Link from "next/link";
 import { BASE_API_URI } from "../../const";
+import Button from "../../src/components/Button";
 
 const PlanDetail: FC = () => {
   const router = useRouter();
@@ -48,35 +49,10 @@ const PlanDetail: FC = () => {
       }}
     >
       <div style={{ columnGap: 130, display: "flex" }}>
-        <div
-          style={{
-            alignItems: "center",
-            backgroundColor: "darkgray",
-            color: "white",
-            display: "flex",
-            height: 70,
-            justifyContent: "center",
-            width: 250,
-          }}
-        >
-          {planInfo.title}
-        </div>
+        <Button color="white">{planInfo.title}</Button>
         <Link href={`/creation/${planInfo.id}`}>
           <a>
-            <div
-              style={{
-                alignItems: "center",
-                backgroundColor: "darkgray",
-                color: "white",
-                cursor: "pointer",
-                display: "flex",
-                height: 70,
-                justifyContent: "center",
-                width: 250,
-              }}
-            >
-              일정 수정하기
-            </div>
+            <Button color="white"> 일정 수정하기</Button>
           </a>
         </Link>
       </div>
@@ -94,7 +70,9 @@ const PlanDetail: FC = () => {
             );
           })}
       </div>
-      <Button onClick={() => setIsFriendsListOpen(true)}>공유하기</Button>
+      <Button color="white" onClick={() => setIsFriendsListOpen(true)}>
+        공유하기
+      </Button>
       <FriendsList
         accessToken={accessToken}
         isOpen={isFriendsListOpen}
@@ -175,17 +153,6 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({ id, startTime, title }) => {
     </div>
   );
 };
-
-const Button = styled.button(() => ({
-  all: "unset",
-  alignItems: "center",
-  backgroundColor: "darkgray",
-  color: "white",
-  display: "flex",
-  justifyContent: "center",
-  height: 70,
-  width: 250,
-}));
 
 function getStartTime(startTime: number) {
   return `${Math.floor(startTime / 60)}:${

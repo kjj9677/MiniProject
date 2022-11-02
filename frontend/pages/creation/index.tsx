@@ -3,7 +3,7 @@ import { isEmpty } from "lodash";
 import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
-import PlanInputForm from "../../src/components/PlanInputForm";
+import PlanInput from "../../src/components/PlanInput";
 import styled from "@emotion/styled";
 import { BASE_API_URI } from "../../const";
 
@@ -54,21 +54,18 @@ const CreatePlan: FC = () => {
       isNumber: false,
       name: "destination",
       question: "1. 어디로 떠나시나요?",
-      unit: "",
       value: destination,
     },
     {
       isNumber: true,
       name: "period",
       question: "2. 며칠 동안 다녀오시나요?(일)",
-      unit: "(일)",
       value: period,
     },
     {
       isNumber: false,
       name: "title",
       question: "3. 이번 여행에 제목을 붙인다면?",
-      unit: "",
       value: title,
     },
   ];
@@ -84,11 +81,11 @@ const CreatePlan: FC = () => {
         width: "100vw",
       }}
     >
-      <PlanInputFormsContainer>
+      <PlanInputsContainer>
         <div style={{ display: "flex", marginLeft: (stage - 1) * -400 }}>
           {PLAN_INPUT_VARIABLES.map(
             ({ isNumber, name, question, unit, value }, idx) => (
-              <PlanInputForm
+              <PlanInput
                 createPlan={createPlan}
                 inputs={inputs}
                 isFirst={idx === 0}
@@ -106,14 +103,14 @@ const CreatePlan: FC = () => {
             )
           )}
         </div>
-      </PlanInputFormsContainer>
+      </PlanInputsContainer>
     </div>
   );
 };
 
 export default CreatePlan;
 
-const PlanInputFormsContainer = styled.div({
+const PlanInputsContainer = styled.div({
   display: "flex",
   overflow: "hidden",
   width: 400,
