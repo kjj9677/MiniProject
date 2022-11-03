@@ -1,6 +1,6 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ConnectionOptions } from 'typeorm';
 
-export const typeORMConfig: TypeOrmModuleOptions = {
+export const typeORMConfig: ConnectionOptions = {
   type: 'postgres',
   host: 'localhost',
   port: 5432,
@@ -8,5 +8,9 @@ export const typeORMConfig: TypeOrmModuleOptions = {
   password: 'postgres',
   database: 'miniproject',
   entities: [__dirname + '/../entities/*.entity.{js,ts}'],
-  synchronize: true,
+  synchronize: false,
+  migrations: ['dist/migations/*{.ts,.js}'],
+  cli: {
+    migrationsDir: __dirname + '/../migrations',
+  },
 };
