@@ -14,9 +14,10 @@ import { Schedule } from 'src/entities/schedule.entity';
 @Injectable()
 export class PlanService {
   async getPlans(user: User): Promise<Plan[]> {
-    const createdPlans = await getRepository(Plan).find({
-      where: { createdBy: { id: user.id } },
-    });
+    const createdPlans = await getRepository(Plan)
+      .createQueryBuilder('plan')
+      .where('plan.createdById = :id', { id: user.id })
+      .getMany();
 
     const sharedPlans = user.shares.map(({ plan }: Share) => plan);
 
@@ -24,14 +25,18 @@ export class PlanService {
   }
 
   async getPlan(user: User, id: number): Promise<Plan> {
-    const foundPlan = await getRepository(Plan).findOne(id, {
-      relations: ['createdBy', 'schedules'],
-    });
+    const foundPlan = await getRepository(Plan)
+      .createQueryBuilder('plan')
+      .leftJoinAndSelect('plan.createdBy', 'createdBy')
+      .leftJoinAndSelect('plan.schedules', 'schedule')
+      .where('plan.id = :id', { id })
+      .getOne();
 
-    const foundShare = await getRepository(Share).find({
-      member: { id: user.id },
-      plan: { id },
-    });
+    const foundShare = await getRepository(Share)
+      .createQueryBuilder('share')
+      .where('share.planId = :planId', { planId: id })
+      .andWhere('share.memberId = :memberId', { memberId: user.id })
+      .getOne();
 
     if (!foundPlan) {
       throw new NotFoundException('존재하지 않는 플랜입니다.');
@@ -51,15 +56,22 @@ export class PlanService {
       title,
     });
 
-    await getRepository(Plan).insert(newPlan);
+    await getRepository(Plan)
+      .createQueryBuilder()
+      .insert()
+      .into(Plan)
+      .values([newPlan])
+      .execute();
 
     return newPlan;
   }
 
   async deletePlan(user: User, id: number): Promise<void> {
-    const foundPlan = await getRepository(Plan).findOne(id, {
-      relations: ['createdBy'],
-    });
+    const foundPlan = await getRepository(Plan)
+      .createQueryBuilder('plan')
+      .leftJoinAndSelect('plan.createdBy', 'createdBy')
+      .where('id = :id', { id })
+      .getOne();
 
     if (!foundPlan) {
       throw new NotFoundException('존재하지 않는 플랜입니다.');
@@ -67,8 +79,19 @@ export class PlanService {
       throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
     }
 
-    await getRepository(Schedule).delete({ plan: { id } });
-    await getRepository(Share).delete({ plan: { id } });
+    await getRepository(Schedule)
+      .createQueryBuilder()
+      .delete()
+      .from(Schedule)
+      .where('"planId" = :id', { id })
+      .execute();
+
+    await getRepository(Share)
+      .createQueryBuilder()
+      .delete()
+      .from(Share)
+      .where('"planId" = :id', { id })
+      .execute();
 
     await getRepository(Plan).softDelete(id);
   }
@@ -94,5 +117,11 @@ export class PlanService {
     }
 
     await getRepository(Plan).update({ id }, updatePlanDto);
+    await getRepository(Plan)
+      .createQueryBuilder()
+      .update(Plan)
+      .set(updatePlanDto)
+      .where('id = :id', { id })
+      .execute();
   }
 }
