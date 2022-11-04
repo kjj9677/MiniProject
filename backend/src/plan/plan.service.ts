@@ -116,7 +116,6 @@ export class PlanService {
       throw new UnauthorizedException('수정 권한이 없는 유저의 요청입니다.');
     }
 
-    await getRepository(Plan).update({ id }, updatePlanDto);
     await getRepository(Plan)
       .createQueryBuilder()
       .update(Plan)

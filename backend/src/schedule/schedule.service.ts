@@ -14,13 +14,15 @@ import { Plan } from 'src/entities/plan.entity';
 @Injectable()
 export class ScheduleService {
   getSchedules(): Promise<Schedule[]> {
-    return getRepository(Schedule).find();
+    return getRepository(Schedule).createQueryBuilder().getMany();
   }
 
   async getSchedulesByPlanId(user: User, planId: number): Promise<Schedule[]> {
-    const foundPlan = await getRepository(Plan).findOne(planId, {
-      relations: ['createdBy'],
-    });
+    const foundPlan = await getRepository(Plan)
+      .createQueryBuilder('plan')
+      .leftJoinAndSelect('plan.createdBy', 'createdBy')
+      .where('plan.id = :id', { id: planId })
+      .getOne();
 
     if (!foundPlan) {
       throw new NotFoundException();
@@ -30,17 +32,23 @@ export class ScheduleService {
     ) {
       throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
     }
-
-    return getRepository(Schedule).find({
-      relations: ['createdBy', 'scheduleType'],
-      where: { plan: { id: planId } },
-    });
+    return getRepository(Schedule)
+      .createQueryBuilder('schedule')
+      .leftJoinAndSelect('schedule.createdBy', 'createdBy')
+      .leftJoinAndSelect('schedule.scheduleType', 'scheduleType')
+      .where('schedule.planId = :planId', { planId })
+      .getMany();
   }
 
   async getSchedule(user: User, id: number): Promise<Schedule> {
-    const foundSchedule = await getRepository(Schedule).findOne(id, {
-      relations: ['createdBy', 'plan', 'scheduleType'],
-    });
+    const foundSchedule = await getRepository(Schedule)
+      .createQueryBuilder('schedule')
+      .leftJoinAndSelect('schedule.createdBy', 'createdBy')
+      .leftJoinAndSelect('schedule.plan', 'plan')
+      .leftJoinAndSelect('plan.createdBy', 'planCreator')
+      .leftJoinAndSelect('schedule.scheduleType', 'scheduleType')
+      .where('schedule.id = :id', { id })
+      .getOne();
 
     const planId = foundSchedule.plan.id;
 
@@ -73,7 +81,12 @@ export class ScheduleService {
       title,
     });
 
-    await getRepository(Schedule).insert(newSchedule);
+    await getRepository(Schedule)
+      .createQueryBuilder()
+      .insert()
+      .into(Schedule)
+      .values([newSchedule])
+      .execute();
 
     return newSchedule;
   }
@@ -96,7 +109,11 @@ export class ScheduleService {
       throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
     }
 
-    await getRepository(Schedule).delete(id);
+    await getRepository(Schedule)
+      .createQueryBuilder()
+      .delete()
+      .where('id = :id', { id })
+      .execute();
   }
 
   async updateSchedule(
@@ -122,15 +139,20 @@ export class ScheduleService {
       throw new UnauthorizedException('수정 권한이 없는 유저의 요청입니다.');
     }
 
-    await getRepository(Schedule).update(
-      { id },
-      {
-        description: updateScheduleDto.description,
-        duration: updateScheduleDto.duration,
-        title: updateScheduleDto.title,
-        scheduleType: { id: updateScheduleDto.scheduleTypeId },
-        startTime: updateScheduleDto.startTime,
-      },
-    );
+    const { description, duration, title, scheduleTypeId, startTime } =
+      updateScheduleDto;
+
+    await getRepository(Schedule)
+      .createQueryBuilder()
+      .update(Schedule)
+      .set({
+        description,
+        duration,
+        scheduleType: { id: scheduleTypeId },
+        startTime,
+        title,
+      })
+      .where('id = :id', { id })
+      .execute();
   }
 }
