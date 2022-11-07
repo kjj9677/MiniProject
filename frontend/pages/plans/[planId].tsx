@@ -19,10 +19,13 @@ const PlanDetail: FC = () => {
 
   useEffect(() => {
     async function getPlanDetail(accessToken: string, planId: number) {
-      const { data } = await axios.get(
-        `${BASE_API_URI}/plans/${planId}`,
-        toAuthorizetionHeader(accessToken)
-      );
+      const data = await axios
+        .get(
+          `${BASE_API_URI}/plans/${planId}`,
+          toAuthorizetionHeader(accessToken)
+        )
+        .then((res) => res.data)
+        .catch((error) => console.log(error));
       setPlanInfo(data);
     }
 

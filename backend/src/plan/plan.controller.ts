@@ -3,10 +3,13 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   Post,
   Put,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
@@ -30,8 +33,17 @@ export class PlanController {
   getPlan(
     @Req() { user }: { user: User },
     @Param('id') id: number,
-  ): Promise<Plan> {
-    return this.planService.getPlan(user, id);
+  ): Promise<void | Plan> {
+    return this.planService.getPlan(user, id).catch((error) => {
+      console.log(error);
+      if (error.status === 404) {
+        throw new NotFoundException(`존재하지 않는 플랜입니다. id : ${id}`);
+      }
+      if (error.status === 401) {
+        throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
+      }
+      throw new InternalServerErrorException('조회 중 오류가 발생하였습니다.');
+    });
   }
 
   @Post()

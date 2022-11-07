@@ -6,7 +6,7 @@ import {
 import { Plan } from 'src/entities/plan.entity';
 import { Share } from 'src/entities/share.entity';
 import { User } from 'src/entities/user.entity';
-import { getRepository } from 'typeorm';
+import { EntityColumnNotFound, getRepository } from 'typeorm';
 import { isEmpty } from 'lodash';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 import { Schedule } from 'src/entities/schedule.entity';
