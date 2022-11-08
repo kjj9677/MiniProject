@@ -1,13 +1,7 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Schedule } from 'src/entities/schedule.entity';
-import { Share } from 'src/entities/share.entity';
 import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
-import { isEmpty } from 'lodash';
 import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
 import { Plan } from 'src/entities/plan.entity';
 
@@ -22,16 +16,15 @@ export class ScheduleService {
       .createQueryBuilder('plan')
       .leftJoinAndSelect('plan.createdBy', 'createdBy')
       .where('plan.id = :id', { id: planId })
-      .getOne();
+      .getOneOrFail();
 
-    if (!foundPlan) {
-      throw new NotFoundException();
-    } else if (
-      foundPlan.createdBy.id !== user.id &&
-      !user.shares.some(({ plan: { id } }) => id === planId)
+    if (
+      !this.checkUserIsPlanCreator(foundPlan, user) &&
+      !this.checkUserIsMember(foundPlan, user)
     ) {
-      throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
+      throw new ForbiddenException('읽기 권한이 없는 유저의 요청입니다.');
     }
+
     return getRepository(Schedule)
       .createQueryBuilder('schedule')
       .leftJoinAndSelect('schedule.createdBy', 'createdBy')
@@ -48,17 +41,13 @@ export class ScheduleService {
       .leftJoinAndSelect('plan.createdBy', 'planCreator')
       .leftJoinAndSelect('schedule.scheduleType', 'scheduleType')
       .where('schedule.id = :id', { id })
-      .getOne();
+      .getOneOrFail();
 
-    const planId = foundSchedule.plan.id;
-
-    if (!foundSchedule) {
-      throw new NotFoundException();
-    } else if (
-      foundSchedule.plan.createdBy.id !== user.id &&
-      !user.shares.some(({ plan: { id } }) => id === planId)
+    if (
+      this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
+      this.checkUserIsMember(foundSchedule.plan, user)
     ) {
-      throw new UnauthorizedException('읽기 권한이 없는 유저의 요청입니다.');
+      throw new ForbiddenException('읽기 권한이 없는 유저의 요청입니다.');
     }
 
     return foundSchedule;
@@ -70,6 +59,20 @@ export class ScheduleService {
   ): Promise<Schedule> {
     const { description, duration, planId, scheduleTypeId, startTime, title } =
       createScheduleDto;
+
+    const foundPlan = await getRepository(Plan)
+      .createQueryBuilder('plan')
+      .leftJoinAndSelect('plan.createdBy', 'createdBy')
+      .leftJoinAndSelect('plan.schedules', 'schedule')
+      .where('plan.id = :id', { id: planId })
+      .getOneOrFail();
+
+    if (
+      this.checkUserIsPlanCreator(foundPlan, user) &&
+      this.checkUserIsMember(foundPlan, user)
+    ) {
+      throw new ForbiddenException('생성 권한이 없는 유저의 요청입니다.');
+    }
 
     const newSchedule = getRepository(Schedule).create({
       createdBy: { id: user.id },
@@ -92,21 +95,15 @@ export class ScheduleService {
   }
 
   async deleteSchedule(user: User, id: number): Promise<void> {
-    const foundSchedule = await getRepository(Schedule).findOne(id, {
+    const foundSchedule = await getRepository(Schedule).findOneOrFail(id, {
       relations: ['createdBy', 'plan'],
     });
-    const foundShare = await getRepository(Share).find({
-      member: { id: user.id },
-      plan: { id: foundSchedule.plan.id },
-    });
 
-    if (!foundSchedule) {
-      throw new NotFoundException();
-    } else if (
-      foundSchedule.plan.createdBy.id !== user.id &&
-      isEmpty(foundShare)
+    if (
+      this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
+      this.checkUserIsMember(foundSchedule.plan, user)
     ) {
-      throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
+      throw new ForbiddenException('삭제 권한이 없는 유저의 요청입니다.');
     }
 
     await getRepository(Schedule)
@@ -121,22 +118,15 @@ export class ScheduleService {
     id: number,
     updateScheduleDto: UpdateScheduleDto,
   ): Promise<void> {
-    const foundSchedule = await getRepository(Schedule).findOne(id, {
+    const foundSchedule = await getRepository(Schedule).findOneOrFail(id, {
       relations: ['createdBy', 'plan'],
     });
 
-    const foundShare = await getRepository(Share).find({
-      member: { id: user.id },
-      plan: { id: foundSchedule.plan.id },
-    });
-
-    if (!foundSchedule) {
-      throw new NotFoundException();
-    } else if (
-      foundSchedule.plan.createdBy.id !== user.id &&
-      isEmpty(foundShare)
+    if (
+      this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
+      this.checkUserIsMember(foundSchedule.plan, user)
     ) {
-      throw new UnauthorizedException('수정 권한이 없는 유저의 요청입니다.');
+      throw new ForbiddenException('수정 권한이 없는 유저의 요청입니다.');
     }
 
     const { description, duration, title, scheduleTypeId, startTime } =
@@ -154,5 +144,13 @@ export class ScheduleService {
       })
       .where('id = :id', { id })
       .execute();
+  }
+
+  private checkUserIsPlanCreator(plan: Plan, user: User) {
+    return plan.createdBy.id === user.id;
+  }
+
+  private checkUserIsMember(plan: Plan, user: User) {
+    return user.shares.some(({ plan: { id } }) => id === plan.id);
   }
 }

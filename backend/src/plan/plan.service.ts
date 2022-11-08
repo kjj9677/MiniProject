@@ -1,13 +1,8 @@
-import {
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
 import { Share } from 'src/entities/share.entity';
 import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
-import { isEmpty } from 'lodash';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 import { Schedule } from 'src/entities/schedule.entity';
 
@@ -69,7 +64,7 @@ export class PlanService {
       .getOneOrFail();
 
     if (!this.checkUserIsCreator(foundPlan, user)) {
-      throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
+      throw new ForbiddenException('삭제 권한이 없는 유저의 요청입니다.');
     }
 
     await getRepository(Schedule)
@@ -102,7 +97,7 @@ export class PlanService {
       !this.checkUserIsCreator(foundPlan, user) &&
       !this.checkUserIsMember(foundPlan, user)
     ) {
-      throw new UnauthorizedException('수정 권한이 없는 유저의 요청입니다.');
+      throw new ForbiddenException('수정 권한이 없는 유저의 요청입니다.');
     }
 
     await getRepository(Plan)
@@ -117,13 +112,7 @@ export class PlanService {
     return plan.createdBy.id === user.id;
   }
 
-  private async checkUserIsMember(plan: Plan, user: User) {
-    const foundShare = await getRepository(Share)
-      .createQueryBuilder('share')
-      .where('share.planId = :planId', { planId: plan.id })
-      .andWhere('share.memberId = :memberId', { memberId: user.id })
-      .getOne();
-
-    return !isEmpty(foundShare);
+  private checkUserIsMember(plan: Plan, user: User) {
+    return user.shares.some(({ plan: { id } }) => id === plan.id);
   }
 }
