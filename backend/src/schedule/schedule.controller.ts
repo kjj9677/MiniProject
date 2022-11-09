@@ -83,7 +83,9 @@ export class ScheduleController {
           throw error;
         }
         if (error instanceof EntityNotFoundError) {
-          throw new NotFoundException(`존재하지 않는 계획입니다. id : ${id}`);
+          throw new NotFoundException(
+            `존재하지 않는 계획입니다. id : ${createScheduleDto.planId}`,
+          );
         }
         throw new InternalServerErrorException(
           '생정 중 오류가 발생하였습니다.',
