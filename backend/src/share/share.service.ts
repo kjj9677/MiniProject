@@ -1,12 +1,12 @@
 import {
+  ConflictException,
+  ForbiddenException,
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Plan } from 'src/entities/plan.entity';
 import { Share } from 'src/entities/share.entity';
 import { User } from 'src/entities/user.entity';
-import { getRepository } from 'typeorm';
+import { getRepository, QueryFailedError } from 'typeorm';
 import { CreateShareDto } from './share.dto';
 
 @Injectable()
@@ -16,10 +16,7 @@ export class ShareService {
   }
 
   async getShare(id: number): Promise<Share> {
-    const foundShare = await getRepository(Share).findOne(id);
-    if (!foundShare) {
-      throw new NotFoundException('존재하지 않는 공유입니다.');
-    }
+    const foundShare = await getRepository(Share).findOneOrFail(id);
     return foundShare;
   }
 
@@ -28,14 +25,15 @@ export class ShareService {
     createShareDto: CreateShareDto,
   ): Promise<Share> {
     const { memberKakaoId, planId } = createShareDto;
-    const foundPlan = await getRepository(Plan).findOne(planId, {
+    const foundPlan = await getRepository(Plan).findOneOrFail(planId, {
       relations: ['createdBy'],
     });
 
-    if (!foundPlan) {
-      throw new NotFoundException('존재하지 않는 플랜입니다.');
-    } else if (foundPlan.createdBy.id !== user.id) {
-      throw new UnauthorizedException('공유 권한이 없는 유저의 요청입니다.');
+    if (
+      !this.checkUserIsPlanCreator(foundPlan, user) &&
+      !this.checkUserIsMember(foundPlan, user)
+    ) {
+      throw new ForbiddenException('공유 권한이 없는 유저의 요청입니다.');
     }
 
     let memberId: number;
@@ -55,21 +53,34 @@ export class ShareService {
       member: { id: memberId },
       plan: { id: planId },
     });
-    await getRepository(Share).insert(newShare);
+
+    await getRepository(Share)
+      .insert(newShare)
+      .catch((e) => {
+        if (e instanceof QueryFailedError) {
+          throw new ConflictException('이미 공유한 유저입니다.');
+        }
+      });
 
     return newShare;
   }
 
   async deleteShare(user: User, id: number): Promise<void> {
-    const foundShare = await getRepository(Share).findOne(id, {
+    const foundShare = await getRepository(Share).findOneOrFail(id, {
       relations: ['member', 'plan'],
     });
-    if (!foundShare) {
-      throw new NotFoundException('존재하지 않는 공유입니다.');
-    } else if (foundShare.member.id !== user.id) {
-      throw new UnauthorizedException('삭제 권한이 없는 유저의 요청입니다.');
+    if (!this.checkUserIsMember(foundShare.plan, user)) {
+      throw new ForbiddenException('삭제 권한이 없는 유저의 요청입니다.');
     }
 
     await getRepository(Share).delete(id);
+  }
+
+  private checkUserIsPlanCreator(plan: Plan, user: User) {
+    return plan.createdBy.id === user.id;
+  }
+
+  private checkUserIsMember(plan: Plan, user: User) {
+    return user.shares.some(({ plan: { id } }) => id === plan.id);
   }
 }

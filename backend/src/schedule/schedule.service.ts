@@ -48,8 +48,8 @@ export class ScheduleService {
       .getOneOrFail();
 
     if (
-      this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
-      this.checkUserIsMember(foundSchedule.plan, user)
+      !this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
+      !this.checkUserIsMember(foundSchedule.plan, user)
     ) {
       throw new ForbiddenException('읽기 권한이 없는 유저의 요청입니다.');
     }
@@ -82,8 +82,8 @@ export class ScheduleService {
     });
 
     if (
-      this.checkUserIsPlanCreator(foundPlan, user) &&
-      this.checkUserIsMember(foundPlan, user)
+      !this.checkUserIsPlanCreator(foundPlan, user) &&
+      !this.checkUserIsMember(foundPlan, user)
     ) {
       throw new ForbiddenException('생성 권한이 없는 유저의 요청입니다.');
     } else if (
@@ -108,8 +108,8 @@ export class ScheduleService {
     });
 
     if (
-      this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
-      this.checkUserIsMember(foundSchedule.plan, user)
+      !this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
+      !this.checkUserIsMember(foundSchedule.plan, user)
     ) {
       throw new ForbiddenException('삭제 권한이 없는 유저의 요청입니다.');
     }
@@ -131,8 +131,8 @@ export class ScheduleService {
     });
 
     if (
-      this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
-      this.checkUserIsMember(foundSchedule.plan, user)
+      !this.checkUserIsPlanCreator(foundSchedule.plan, user) &&
+      !this.checkUserIsMember(foundSchedule.plan, user)
     ) {
       throw new ForbiddenException('수정 권한이 없는 유저의 요청입니다.');
     }

@@ -88,7 +88,7 @@ export class ScheduleController {
           );
         }
         throw new InternalServerErrorException(
-          '생정 중 오류가 발생하였습니다.',
+          '생성 중 오류가 발생하였습니다.',
         );
       });
   }
