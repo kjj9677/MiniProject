@@ -47,12 +47,10 @@ const PlanDetail: FC = () => {
   return (
     <PlanDetailContainer>
       <div style={{ columnGap: 130, display: "flex" }}>
+        <Button color="white" to="/plans">
+          계획표 목록 보기
+        </Button>
         <Button color="white">{planInfo.title}</Button>
-        <Link href={`/creation/${planInfo.id}`}>
-          <a>
-            <Button color="white">일정 수정하기</Button>
-          </a>
-        </Link>
       </div>
       <div>
         {sortedSchedules.map(
@@ -76,9 +74,14 @@ const PlanDetail: FC = () => {
           }
         )}
       </div>
-      <Button color="white" onClick={() => setIsFriendsListOpen(true)}>
-        공유하기
-      </Button>
+      <div style={{ columnGap: 130, display: "flex" }}>
+        <Button color="white" to={`/creation/${planInfo.id}`}>
+          일정 수정하기
+        </Button>
+        <Button color="white" onClick={() => setIsFriendsListOpen(true)}>
+          공유하기
+        </Button>
+      </div>
       <FriendsList
         accessToken={accessToken}
         isOpen={isFriendsListOpen}
