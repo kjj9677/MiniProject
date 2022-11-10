@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { isEmpty } from "lodash";
 import styled from "@emotion/styled";
 import axios from "axios";
@@ -8,10 +8,8 @@ import {
   toAuthorizetionHeader,
 } from "../../utils";
 import { useRouter } from "next/router";
-import Modal from "react-modal";
 import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
-import Typography from "../../src/components/Typography";
 import ScheduleInput from "../../src/components/ScheduleInput";
 import ScheduleInfo from "../../src/components/ScheduleInfo";
 
@@ -144,8 +142,39 @@ const CreateSchedule: FC = () => {
     return true;
   }
 
+  function checkScheduleIsConflicting(prevSchedules, newSchedule) {
+    return prevSchedules.some(
+      (prevSchedule) =>
+        (newSchedule.startTime < prevSchedule.startTime &&
+          newSchedule.startTime + newSchedule.duration >
+            prevSchedule.startTime) ||
+        newSchedule.startTime === prevSchedule.startTime ||
+        (newSchedule.startTime > prevSchedule.startTime &&
+          prevSchedule.startTime + prevSchedule.duration >
+            newSchedule.startTime)
+    );
+  }
+
   function addSchedule() {
     if (!checkAreInputsValid()) {
+      return null;
+    }
+
+    const newSchedule = {
+      title,
+      duration: +duration,
+      scheduleTypeId: getScheduleTypeIdByString(scheduleType),
+      startTime: +startTime.hour * 60 + +startTime.minute,
+      planId,
+    };
+
+    if (
+      checkScheduleIsConflicting(
+        addedSchedules.concat(planInfo.schedules),
+        newSchedule
+      )
+    ) {
+      alert("기존 스케줄과 충돌이 있습니다!");
       return null;
     }
 
@@ -163,16 +192,20 @@ const CreateSchedule: FC = () => {
   }
 
   function createSchedule() {
-    addedSchedules.map(async (addedSchedule) => {
-      await axios
-        .post(
+    Promise.all(
+      addedSchedules.map((addedSchedule) =>
+        axios.post(
           `${BASE_API_URI}/schedules`,
           addedSchedule,
           toAuthorizetionHeader(accessToken)
         )
-        .then(() => router.reload());
-    });
+      )
+    ).then(() => router.reload());
   }
+
+  const sortedSchedules = addedSchedules
+    .concat(planInfo.schedules)
+    .sort((a, b) => a.startTime - b.startTime);
 
   return (
     <CreateScheduleContainer>
@@ -185,29 +218,20 @@ const CreateSchedule: FC = () => {
           rowGap: 30,
         }}
       >
-        <Button color="white">{planInfo.title}</Button>
+        <Button color="white" to={`/plans/${planId}`}>
+          {planInfo.title}
+        </Button>
         <div>
-          {planInfo.schedules
-            .sort((a, b) => a.startTime - b.startTime)
-            .map(({ duration, id, scheduleTypeId, startTime, title }) => {
-              return (
-                <ScheduleInfo
-                  accessToken={accessToken}
-                  duration={duration}
-                  id={id}
-                  key={id}
-                  scheduleTypeId={scheduleTypeId}
-                  startTime={startTime}
-                  title={title}
-                />
-              );
-            })}
-          {addedSchedules.map(
-            ({ duration, id, title, scheduleTypeId, startTime }: any) => (
+          {sortedSchedules.map(
+            ({ duration, id, title, scheduleTypeId, startTime }: any, idx) => (
               <ScheduleInfo
                 accessToken={accessToken}
                 duration={duration}
-                key={id}
+                key={startTime}
+                isConnected={
+                  idx < sortedSchedules.length - 1 &&
+                  startTime + duration === sortedSchedules[idx + 1].startTime
+                }
                 id={id}
                 scheduleTypeId={scheduleTypeId}
                 startTime={startTime}
@@ -239,20 +263,17 @@ const CreateSchedule: FC = () => {
           }}
         >
           {CREATE_SCHEDULE_VARIABLES.map(
-            (
-              {
-                isNumber,
-                isSelectType,
-                isStartTime,
-                inputTitle,
-                name,
-                placeholder,
-                value,
-              },
-              idx
-            ) => (
+            ({
+              isNumber,
+              isSelectType,
+              isStartTime,
+              inputTitle,
+              name,
+              placeholder,
+              value,
+            }) => (
               <ScheduleInput
-                key={idx}
+                key={name}
                 name={name}
                 onChange={onChange}
                 isNumber={isNumber}

@@ -8,6 +8,7 @@ import ModifyModal from "./ModifyModal";
 interface ScheduleInfoProps {
   accessToken: string;
   duration: number;
+  isConnected: boolean;
   id: number;
   isEditable?: boolean;
   scheduleTypeId: number;
@@ -19,6 +20,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
   accessToken,
   duration,
   id,
+  isConnected,
   isEditable = true,
   scheduleTypeId,
   startTime,
@@ -28,49 +30,59 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
   const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
 
   return (
-    <ScheduleInfoContainer>
-      <StartTimeContainer>
-        <Typography>{getStartTime(startTime)}</Typography>
-      </StartTimeContainer>
-      <Slur />
-      <StyledDiv>
-        <TitleContainer>
-          <Typography color="white">{title}</Typography>
-        </TitleContainer>
-        {isEditable && (
-          <EditButtons>
-            <EditButton
-              color="white"
-              onClick={() => setIsModifyModalOpen(true)}
-            >
-              수정
-            </EditButton>
-            <EditButton
-              color="white"
-              onClick={() => setIsDeleteModalOpen(true)}
-            >
-              삭제
-            </EditButton>
-            <DeleteModal
-              scheduleId={id}
-              onClose={() => setIsDeleteModalOpen(false)}
-              accessToken={accessToken}
-              isOpen={isDeleteModalOpen}
-            />
-            <ModifyModal
-              accessToken={accessToken}
-              isOpen={isModifyModalOpen}
-              onClose={() => setIsModifyModalOpen(false)}
-              prevDuration={duration}
-              prevScheduleTypeId={scheduleTypeId}
-              prevStartTime={startTime}
-              prevTitle={title}
-              scheduleId={id}
-            />
-          </EditButtons>
-        )}
-      </StyledDiv>
-    </ScheduleInfoContainer>
+    <>
+      <ScheduleInfoContainer>
+        <StartTimeContainer>
+          <Typography>{getStartTime(startTime)}</Typography>
+        </StartTimeContainer>
+        <Slur />
+        <StyledDiv>
+          <TitleContainer>
+            <Typography color="white">{title}</Typography>
+          </TitleContainer>
+          {isEditable && (
+            <EditButtons>
+              <EditButton
+                color="white"
+                onClick={() => setIsModifyModalOpen(true)}
+              >
+                수정
+              </EditButton>
+              <EditButton
+                color="white"
+                onClick={() => setIsDeleteModalOpen(true)}
+              >
+                삭제
+              </EditButton>
+              <DeleteModal
+                scheduleId={id}
+                onClose={() => setIsDeleteModalOpen(false)}
+                accessToken={accessToken}
+                isOpen={isDeleteModalOpen}
+              />
+              <ModifyModal
+                accessToken={accessToken}
+                isOpen={isModifyModalOpen}
+                onClose={() => setIsModifyModalOpen(false)}
+                prevDuration={duration}
+                prevScheduleTypeId={scheduleTypeId}
+                prevStartTime={startTime}
+                prevTitle={title}
+                scheduleId={id}
+              />
+            </EditButtons>
+          )}
+        </StyledDiv>
+      </ScheduleInfoContainer>
+      {!isConnected && (
+        <ScheduleInfoContainer>
+          <StartTimeContainer>
+            <Typography>{getStartTime(startTime + duration)}</Typography>
+          </StartTimeContainer>
+          <Slur />
+        </ScheduleInfoContainer>
+      )}
+    </>
   );
 };
 
