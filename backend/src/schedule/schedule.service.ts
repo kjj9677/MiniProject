@@ -166,15 +166,16 @@ export class ScheduleService {
     prevSchedules: Schedule[],
     newSchedule: Schedule,
   ) {
-    return prevSchedules.some(
-      (prevSchedule) =>
-        (newSchedule.startTime < prevSchedule.startTime &&
-          newSchedule.startTime + newSchedule.duration >
-            prevSchedule.startTime) ||
-        newSchedule.startTime === prevSchedule.startTime ||
-        (newSchedule.startTime > prevSchedule.startTime &&
-          prevSchedule.startTime + prevSchedule.duration >
-            newSchedule.startTime),
-    );
+    return prevSchedules.some((prevSchedule) => {
+      const startTimeViolation =
+        newSchedule.startTime > prevSchedule.startTime &&
+        prevSchedule.startTime + prevSchedule.duration > newSchedule.startTime;
+      const startTimeDuplicate =
+        newSchedule.startTime === prevSchedule.startTime;
+      const durationViolation =
+        newSchedule.startTime < prevSchedule.startTime &&
+        newSchedule.startTime + newSchedule.duration > prevSchedule.startTime;
+      return startTimeViolation || startTimeDuplicate || durationViolation;
+    });
   }
 }

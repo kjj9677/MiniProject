@@ -8,7 +8,7 @@ export const typeORMConfig: ConnectionOptions = {
   password: 'postgres',
   database: 'miniproject',
   entities: [__dirname + '/../entities/*.entity.{js,ts}'],
-  synchronize: false,
+  synchronize: true,
   migrations: ['dist/migations/*{.ts,.js}'],
   cli: {
     migrationsDir: __dirname + '/../migrations',

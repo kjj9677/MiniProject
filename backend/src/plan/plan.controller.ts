@@ -18,8 +18,13 @@ import { PlanService } from './plan.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/entities/user.entity';
 import { EntityNotFoundError } from 'typeorm';
+import { RoleGuard } from 'src/guard/role.guard';
+import { Roles } from 'src/decorator/role.decorator';
+import { USER_ROLE } from 'src/entities/role.entity';
 
 @Controller('plans')
+@Roles(USER_ROLE.ADMIN)
+@UseGuards(RoleGuard)
 export class PlanController {
   constructor(private planService: PlanService) {}
 

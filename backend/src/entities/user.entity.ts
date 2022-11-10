@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Role } from './role.entity';
 import { Share } from './share.entity';
 
 @Entity()
@@ -23,4 +25,7 @@ export class User {
 
   @OneToMany(() => Share, (share) => share.member, { eager: false })
   shares: Share[];
+
+  @ManyToOne(() => Role)
+  role: Role;
 }

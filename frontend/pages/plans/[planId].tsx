@@ -40,6 +40,10 @@ const PlanDetail: FC = () => {
     return null;
   }
 
+  const sortedSchedules = planInfo.schedules.sort(
+    (a, b) => a.startTime - b.startTime
+  );
+
   return (
     <PlanDetailContainer>
       <div style={{ columnGap: 130, display: "flex" }}>
@@ -51,13 +55,16 @@ const PlanDetail: FC = () => {
         </Link>
       </div>
       <div>
-        {planInfo.schedules
-          .sort((a, b) => a.startTime - b.startTime)
-          .map(({ duration, id, title, scheduleTypeId, startTime }) => {
+        {sortedSchedules.map(
+          ({ duration, id, title, scheduleTypeId, startTime }, idx) => {
             return (
               <ScheduleInfo
                 accessToken={accessToken}
                 duration={duration}
+                isConnected={
+                  idx < sortedSchedules.length - 1 &&
+                  startTime + duration === sortedSchedules[idx + 1].startTime
+                }
                 id={id}
                 isEditable={false}
                 key={id}
@@ -66,7 +73,8 @@ const PlanDetail: FC = () => {
                 title={title}
               />
             );
-          })}
+          }
+        )}
       </div>
       <Button color="white" onClick={() => setIsFriendsListOpen(true)}>
         공유하기
