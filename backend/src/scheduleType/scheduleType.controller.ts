@@ -6,11 +6,17 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
+import { Roles } from 'src/decorator/role.decorator';
+import { USER_ROLE } from 'src/entities/role.entity';
 import { ScheduleType } from 'src/entities/scheduleType.entity';
+import { RoleGuard } from 'src/guard/role.guard';
 import { ScheduleTypeService } from './scheduleType.service';
 
 @Controller('types')
+@UseGuards(RoleGuard)
+@Roles(USER_ROLE.ADMIN)
 export class ScheduleTypeController {
   constructor(private scheduleTypeService: ScheduleTypeService) {}
 
