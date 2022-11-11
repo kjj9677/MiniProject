@@ -26,6 +26,9 @@ export class Schedule {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ nullable: true })
+  cost: number;
+
   @ManyToOne(() => Plan, (plan) => plan.schedules, { eager: false })
   @JoinColumn()
   plan: Plan;
