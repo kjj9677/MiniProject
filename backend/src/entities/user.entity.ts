@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Payment } from './payment.entity';
 import { Role } from './role.entity';
 import { Share } from './share.entity';
 
@@ -25,6 +26,9 @@ export class User {
 
   @OneToMany(() => Share, (share) => share.member, { eager: false })
   shares: Share[];
+
+  @OneToMany(() => Payment, (payment) => payment.member, { eager: false })
+  payments: Payment[];
 
   @ManyToOne(() => Role)
   role: Role;

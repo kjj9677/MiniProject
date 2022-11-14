@@ -12,11 +12,11 @@ import { getRepository, QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class PaymentService {
-  async createPayment(user: User, createPaymentDto): Promise<Payment> {
+  async createPayment(user: User, createPaymentDto): Promise<void | Payment> {
     const { memberId, scheduleId } = createPaymentDto;
     const foundSchedule = await getRepository(Schedule).findOneOrFail(
       scheduleId,
-      { relations: ['plan.createdBy'] },
+      { relations: ['plan', 'plan.createdBy'] },
     );
 
     if (
@@ -26,7 +26,9 @@ export class PaymentService {
       throw new ForbiddenException('지출 생성 권한이 없는 유저의 요청입니다.');
     }
 
-    const foundMember = await getRepository(User).findOneOrFail(memberId);
+    const foundMember = await getRepository(User).findOneOrFail(memberId, {
+      relations: ['shares'],
+    });
 
     if (
       !this.checkUserIsPlanCreator(foundSchedule.plan, foundMember) &&

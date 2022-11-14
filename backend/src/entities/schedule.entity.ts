@@ -3,8 +3,10 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Payment } from './payment.entity';
 import { Plan } from './plan.entity';
 import { ScheduleType } from './scheduleType.entity';
 import { User } from './user.entity';
@@ -42,4 +44,7 @@ export class Schedule {
   @ManyToOne(() => User, { eager: false })
   @JoinColumn()
   createdBy: User;
+
+  @OneToMany(() => Payment, (payment) => payment.schedule, { eager: false })
+  payments: Payment[];
 }

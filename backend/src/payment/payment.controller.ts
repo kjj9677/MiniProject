@@ -20,10 +20,10 @@ export class PaymentController {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  createPayment(
+  async createPayment(
     @Req() { user }: { user: User },
     @Body() createPaymentDto,
-  ): Promise<Payment> {
+  ): Promise<void | Payment> {
     return this.paymentService
       .createPayment(user, createPaymentDto)
       .catch((error) => {
