@@ -11,6 +11,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RoleModule } from './role/role.module';
 import { PaymentModule } from './payment/payment.module';
+import { TagModule } from './tag/tag.module';
+import { TagMappingModule } from './tagMapping/tagMapping.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { PaymentModule } from './payment/payment.module';
     AuthModule,
     RoleModule,
     PaymentModule,
+    TagModule,
+    TagMappingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
