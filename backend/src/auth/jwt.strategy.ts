@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { kakaoId } = payload;
     const user: User = await getRepository(User).findOne(
       { kakaoId },
-      { relations: ['shares'] },
+      { relations: ['role', 'shares'] },
     );
 
     if (!user) {

@@ -1,9 +1,9 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   HttpException,
   InternalServerErrorException,
+  NotFoundException,
   Post,
   Req,
   UseGuards,
@@ -32,9 +32,7 @@ export class PaymentController {
           throw error;
         }
         if (error instanceof EntityNotFoundError) {
-          throw new BadRequestException(
-            '존재하지 않는 스케줄 혹은 유저입니다.',
-          );
+          throw new NotFoundException('존재하지 않는 스케줄 혹은 유저입니다.');
         }
         throw new InternalServerErrorException(
           '생성 중 오류가 발생하였습니다.',
