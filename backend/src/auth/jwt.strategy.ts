@@ -8,8 +8,9 @@ import { getRepository } from 'typeorm';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      secretOrKey: 'MiniProject',
+      ignoreExpiration: true,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: 'MiniProject',
     });
   }
 

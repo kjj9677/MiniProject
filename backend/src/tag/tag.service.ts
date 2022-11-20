@@ -25,7 +25,7 @@ export class TagService {
   }
 
   async deleteTag(id: number): Promise<void> {
-    const foundTag = await getRepository(Tag).findOneOrFail(id);
+    await getRepository(Tag).findOneOrFail(id);
     await getRepository(Tag).delete(id);
   }
 

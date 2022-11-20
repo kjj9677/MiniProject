@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -25,7 +26,13 @@ export class PlanController {
 
   @Get()
   @UseGuards(AuthGuard('jwt'))
-  getPlans(@Req() { user }: { user: User }): Promise<Plan[]> {
+  getPlans(
+    @Req() { user }: { user: User },
+    @Query() { isPublic }: { isPublic: boolean },
+  ): Promise<Plan[]> {
+    if (isPublic) {
+      return this.planService.getPublicPlans();
+    }
     return this.planService.getPlans(user);
   }
 

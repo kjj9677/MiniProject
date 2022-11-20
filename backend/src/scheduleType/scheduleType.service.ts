@@ -16,7 +16,7 @@ export class ScheduleTypeService {
     return foundScheduleType;
   }
 
-  async createScheduleType(scheduleType: ScheduleType): Promise<void> {
+  async createScheduleType(scheduleType: { title: string }): Promise<void> {
     await getRepository(ScheduleType).insert(scheduleType);
   }
 

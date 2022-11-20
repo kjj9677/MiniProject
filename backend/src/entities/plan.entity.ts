@@ -42,4 +42,7 @@ export class Plan {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @Column({ nullable: true })
+  isPublic: boolean;
 }

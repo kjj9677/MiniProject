@@ -8,6 +8,14 @@ import { Schedule } from 'src/entities/schedule.entity';
 
 @Injectable()
 export class PlanService {
+  async getPublicPlans(): Promise<Plan[]> {
+    const publicPlans = await getRepository(Plan).find({
+      where: { isPublic: true },
+    });
+
+    return publicPlans;
+  }
+
   async getPlans(user: User): Promise<Plan[]> {
     const createdPlans = await getRepository(Plan)
       .createQueryBuilder('plan')

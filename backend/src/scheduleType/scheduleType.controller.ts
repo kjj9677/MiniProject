@@ -8,6 +8,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/decorator/role.decorator';
 import { USER_ROLE } from 'src/entities/role.entity';
 import { ScheduleType } from 'src/entities/scheduleType.entity';
@@ -15,12 +16,13 @@ import { RoleGuard } from 'src/guard/role.guard';
 import { ScheduleTypeService } from './scheduleType.service';
 
 @Controller('types')
-@UseGuards(RoleGuard)
+@UseGuards(AuthGuard('jwt'), RoleGuard)
 @Roles(USER_ROLE.ADMIN)
 export class ScheduleTypeController {
   constructor(private scheduleTypeService: ScheduleTypeService) {}
 
   @Get()
+  @Roles(USER_ROLE.GUEST)
   getScheduleTypes(): Promise<ScheduleType[]> {
     return this.scheduleTypeService.getScheduleTypes();
   }
@@ -31,7 +33,7 @@ export class ScheduleTypeController {
   }
 
   @Post()
-  createScheduleType(@Body() scheduleType: ScheduleType) {
+  createScheduleType(@Body() scheduleType: { title: string }) {
     return this.scheduleTypeService.createScheduleType(scheduleType);
   }
 
