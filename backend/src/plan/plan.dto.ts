@@ -1,5 +1,7 @@
+import { PartialType } from '@nestjs/mapped-types';
 import {
   IsInt,
+  IsOptional,
   IsString,
   Max,
   MaxLength,
@@ -24,4 +26,7 @@ export class CreatePlanDto {
   title: string;
 }
 
-export class UpdatePlanDto extends CreatePlanDto {}
+export class UpdatePlanDto extends PartialType(CreatePlanDto) {
+  @IsOptional()
+  isPublic: boolean;
+}

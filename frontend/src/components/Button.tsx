@@ -47,7 +47,9 @@ const StyledButton: FC<ButtonProps> = ({
     onClick={onClick}
     width={width}
   >
-    <Typography size="20">{children}</Typography>
+    <Typography color={color === "black" ? "white" : "black"} size="20">
+      {children}
+    </Typography>
   </StyledButtonContainer>
 );
 
