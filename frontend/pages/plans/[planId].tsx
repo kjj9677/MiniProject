@@ -65,6 +65,7 @@ const PlanDetail: FC = () => {
                   startTime + duration === sortedSchedules[idx + 1].startTime
                 }
                 id={id}
+                isAdded={false}
                 isEditable={false}
                 key={id}
                 scheduleTypeId={scheduleTypeId}
