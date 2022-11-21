@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Tag } from 'src/entities/tag.entity';
+import { TagMapping } from 'src/entities/tagMapping.entity';
 import { getRepository } from 'typeorm';
 import { CreateTagDto, UpdateTagDto } from './tag.dto';
 
 @Injectable()
 export class TagService {
   getTags(): Promise<Tag[]> {
-    return getRepository(Tag).find();
-  }
-
-  async getTagsByPlanId(planId: number): Promise<Tag[]> {
     return getRepository(Tag).find();
   }
 
@@ -26,6 +23,12 @@ export class TagService {
 
   async deleteTag(id: number): Promise<void> {
     await getRepository(Tag).findOneOrFail(id);
+    await getRepository(TagMapping)
+      .createQueryBuilder()
+      .delete()
+      .from(TagMapping)
+      .where('"tagId" = :id', { id })
+      .execute();
     await getRepository(Tag).delete(id);
   }
 

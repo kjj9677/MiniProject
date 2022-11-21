@@ -5,6 +5,7 @@ import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 import { Schedule } from 'src/entities/schedule.entity';
+import { TagMapping } from 'src/entities/tagMapping.entity';
 
 @Injectable()
 export class PlanService {
@@ -86,6 +87,13 @@ export class PlanService {
       .createQueryBuilder()
       .delete()
       .from(Share)
+      .where('"planId" = :id', { id })
+      .execute();
+
+    await getRepository(TagMapping)
+      .createQueryBuilder()
+      .delete()
+      .from(TagMapping)
       .where('"planId" = :id', { id })
       .execute();
 

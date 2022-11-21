@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,15 +21,6 @@ import { TagService } from './tag.service';
 @Roles(USER_ROLE.ADMIN)
 export class TagController {
   constructor(private tagService: TagService) {}
-
-  @Get()
-  @Roles(USER_ROLE.GUEST)
-  getTags(@Query() { planId }: { planId: number }): Promise<Tag[]> {
-    if (!planId) {
-      return this.tagService.getTags();
-    }
-    return this.tagService.getTagsByPlanId(planId);
-  }
 
   @Get(':id')
   getTag(@Param('id') id: number): Promise<Tag> {
