@@ -35,7 +35,7 @@ const BackOffice: FC = () => {
       .post(
         `${BASE_API_URI}/${endPoint}`,
         {
-          title: newScheduleType,
+          title: newValue,
         },
         toAuthorizetionHeader(localStorage.getItem("accessToken"))
       )
