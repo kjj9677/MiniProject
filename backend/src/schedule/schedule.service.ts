@@ -8,6 +8,7 @@ import { User } from 'src/entities/user.entity';
 import { getRepository } from 'typeorm';
 import { CreateScheduleDto, UpdateScheduleDto } from './schedule.dto';
 import { Plan } from 'src/entities/plan.entity';
+import { Payment } from 'src/entities/payment.entity';
 
 @Injectable()
 export class ScheduleService {
@@ -113,6 +114,13 @@ export class ScheduleService {
     ) {
       throw new ForbiddenException('삭제 권한이 없는 유저의 요청입니다.');
     }
+
+    await getRepository(Payment)
+      .createQueryBuilder()
+      .delete()
+      .from(Payment)
+      .where('"scheduleId" = :id', { id })
+      .execute();
 
     await getRepository(Schedule)
       .createQueryBuilder()

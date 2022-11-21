@@ -6,6 +6,7 @@ import { getRepository } from 'typeorm';
 import { CreatePlanDto, UpdatePlanDto } from './plan.dto';
 import { Schedule } from 'src/entities/schedule.entity';
 import { TagMapping } from 'src/entities/tagMapping.entity';
+import { Payment } from 'src/entities/payment.entity';
 
 @Injectable()
 export class PlanService {
@@ -71,12 +72,22 @@ export class PlanService {
     const foundPlan = await getRepository(Plan)
       .createQueryBuilder('plan')
       .leftJoinAndSelect('plan.createdBy', 'createdBy')
+      .leftJoinAndSelect('plan.schedules', 'schedule')
       .where('id = :id', { id })
       .getOneOrFail();
 
     if (!this.checkUserIsCreator(foundPlan, user)) {
       throw new ForbiddenException('삭제 권한이 없는 유저의 요청입니다.');
     }
+
+    foundPlan.schedules.forEach(async ({ id: scheduleId }) => {
+      await getRepository(Payment)
+        .createQueryBuilder()
+        .delete()
+        .from(Payment)
+        .where('"scheduleId" = :id', { id: scheduleId })
+        .execute();
+    });
 
     await getRepository(Schedule)
       .createQueryBuilder()
