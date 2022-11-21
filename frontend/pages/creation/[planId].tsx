@@ -160,6 +160,11 @@ const CreateSchedule: FC = () => {
       return null;
     }
 
+    if (+duration % 5 !== 0 || +duration === 0) {
+      alert("소요 시간은 5분 단위로 입력해주세요");
+      return null;
+    }
+
     const newSchedule = {
       title,
       duration: +duration,
