@@ -63,6 +63,7 @@ const CreateSchedule: FC = () => {
       getPlanDetail(accessToken, planId);
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, planId]);
 
   if (!planInfo || isLoading) {
@@ -186,6 +187,7 @@ const CreateSchedule: FC = () => {
     setAddedSchedules((prev) => [
       ...prev,
       {
+        isAdded: true,
         title,
         duration: +duration,
         scheduleTypeId: getScheduleTypeIdByString(scheduleType),
@@ -228,8 +230,12 @@ const CreateSchedule: FC = () => {
         </Button>
         <div>
           {sortedSchedules.map(
-            ({ duration, id, title, scheduleTypeId, startTime }: any, idx) => (
+            (
+              { duration, id, title, scheduleTypeId, startTime, isAdded }: any,
+              idx
+            ) => (
               <ScheduleInfo
+                isAdded={isAdded}
                 accessToken={accessToken}
                 duration={duration}
                 key={startTime}

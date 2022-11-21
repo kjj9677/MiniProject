@@ -8,6 +8,7 @@ import ModifyModal from "./ModifyModal";
 interface ScheduleInfoProps {
   accessToken: string;
   duration: number;
+  isAdded: undefined | boolean;
   isConnected: boolean;
   id: number;
   isEditable?: boolean;
@@ -19,6 +20,7 @@ interface ScheduleInfoProps {
 const ScheduleInfo: FC<ScheduleInfoProps> = ({
   accessToken,
   duration,
+  isAdded,
   id,
   isConnected,
   isEditable = true,
@@ -40,7 +42,7 @@ const ScheduleInfo: FC<ScheduleInfoProps> = ({
           <TitleContainer>
             <Typography color="white">{title}</Typography>
           </TitleContainer>
-          {isEditable && (
+          {isEditable && !isAdded && (
             <EditButtons>
               <EditButton
                 color="white"
