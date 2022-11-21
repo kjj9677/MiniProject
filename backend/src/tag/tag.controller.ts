@@ -22,6 +22,12 @@ import { TagService } from './tag.service';
 export class TagController {
   constructor(private tagService: TagService) {}
 
+  @Get()
+  @Roles(USER_ROLE.GUEST)
+  getTags(): Promise<Tag[]> {
+    return this.tagService.getTags();
+  }
+
   @Get(':id')
   getTag(@Param('id') id: number): Promise<Tag> {
     return this.tagService.getTag(id);
