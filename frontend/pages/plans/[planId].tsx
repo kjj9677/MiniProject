@@ -4,10 +4,10 @@ import axios from "axios";
 import { toAuthorizetionHeader } from "../../utils";
 import { useRouter } from "next/router";
 import Modal from "react-modal";
-import Link from "next/link";
 import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
 import ScheduleInfo from "../../src/components/ScheduleInfo";
+import Typography from "../../src/components/Typography";
 
 const PlanDetail: FC = () => {
   const router = useRouter();
@@ -74,13 +74,14 @@ const PlanDetail: FC = () => {
           }
         )}
       </div>
-      <div style={{ columnGap: 130, display: "flex" }}>
+      <div style={{ columnGap: 70, display: "flex" }}>
         <Button color="white" to={`/creation/${planInfo.id}`}>
           일정 수정하기
         </Button>
         <Button color="white" onClick={() => setIsFriendsListOpen(true)}>
           공유하기
         </Button>
+        <Button color="white">다른 사람에게 공개하기</Button>
       </div>
       <FriendsList
         accessToken={accessToken}
@@ -156,7 +157,7 @@ const FriendsList: FC<FriendsListProps> = ({
       <div
         style={{
           alignItems: "center",
-          backgroundColor: "#c9d3dd",
+          backgroundColor: "white",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -169,11 +170,18 @@ const FriendsList: FC<FriendsListProps> = ({
         }}
       >
         <div style={{ columnGap: 20, display: "flex" }}>
-          <p>누구와 공유하시겠습니까?</p>
+          <Typography>누구와 공유하시겠습니까?</Typography>
           <input onChange={onChange} value={shareTarget} />
         </div>
-        <Button onClick={createShare}>공유하기</Button>
+        <StyledButton color="white" onClick={createShare}>
+          공유하기
+        </StyledButton>
       </div>
     </Modal>
   );
 };
+
+const StyledButton = styled(Button)({
+  border: "solid 3px black",
+  borderRadius: 5,
+});
