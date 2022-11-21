@@ -54,7 +54,7 @@ const Main: FC = () => {
           </a>
         </Link>
         <Button color="white" onClick={logOut}>
-          로그아웃
+          LogOut
         </Button>
       </div>
     );
