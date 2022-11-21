@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Schedule } from './schedule.entity';
 import { Share } from './share.entity';
+import { TagMapping } from './tagMapping.entity';
 import { User } from './user.entity';
 
 @Entity()
@@ -45,4 +46,9 @@ export class Plan {
 
   @Column({ nullable: true })
   isPublic: boolean;
+
+  @OneToMany(() => TagMapping, (tagMapping) => tagMapping.plan, {
+    eager: false,
+  })
+  tagMappings: TagMapping[];
 }

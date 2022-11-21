@@ -8,7 +8,9 @@ export class TagMapping {
   @Generated('increment')
   id: number;
 
-  @ManyToOne(() => Plan, { primary: true })
+  @ManyToOne(() => Plan, (plan) => plan.tagMappings, {
+    primary: true,
+  })
   plan: Plan;
 
   @ManyToOne(() => Tag, { primary: true })

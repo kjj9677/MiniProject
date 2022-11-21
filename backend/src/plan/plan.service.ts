@@ -12,6 +12,7 @@ export class PlanService {
   async getPublicPlans(): Promise<Plan[]> {
     const publicPlans = await getRepository(Plan).find({
       where: { isPublic: true },
+      relations: ['tagMappings', 'tagMappings.tag'],
     });
 
     return publicPlans;
@@ -33,6 +34,7 @@ export class PlanService {
       .createQueryBuilder('plan')
       .leftJoinAndSelect('plan.createdBy', 'createdBy')
       .leftJoinAndSelect('plan.schedules', 'schedule')
+      .leftJoinAndSelect('plan.tagMappings', 'tagMapping')
       .where('plan.id = :id', { id })
       .getOneOrFail();
 

@@ -5,6 +5,7 @@ import { toAuthorizetionHeader } from "../../utils";
 import { BASE_API_URI } from "../../const";
 import Button from "../../src/components/Button";
 import PlanInfo from "../../src/components/PlanInfo";
+import Typography from "../../src/components/Typography";
 
 const Exhibition: FC = () => {
   const [accessToken, setAccessToken] = useState<string>();
@@ -30,18 +31,27 @@ const Exhibition: FC = () => {
     return <div />;
   }
 
+  console.log(planList);
   return (
     <ExhibitionContainer>
       <Button color="white">여행 계획표 목록</Button>
       {planList &&
-        planList.map(({ id, destination, period, title }) => (
-          <PlanInfo
-            key={id}
-            id={id}
-            destination={destination}
-            period={period}
-            title={title}
-          />
+        planList.map(({ id, destination, period, title, tagMappings }) => (
+          <div key={id}>
+            <PlanInfo
+              id={id}
+              destination={destination}
+              period={period}
+              title={title}
+            />
+            <div style={{ columnGap: 15, display: "flex" }}>
+              {tagMappings.map(({ id, tag: { title } }) => (
+                <Typography color="white" key={id} size="20">
+                  {title}
+                </Typography>
+              ))}
+            </div>
+          </div>
         ))}
     </ExhibitionContainer>
   );
